@@ -13,6 +13,8 @@ timer_time = 0
 computer_player_count = 1
 tournament_rounds = 0
 FILE_NAME = 'kotus_sanat.txt'
+player_dict = {}
+tournament_mode = False
 
 
 def read_available_words_from_file():
@@ -124,20 +126,65 @@ def print_header():
         print('')
 
 
+def print_tournament_results():
+    print(' * * * Tournament results * * * ')
+    for player in player_dict:
+        print( ' - ' + player + ' ' + str(player_dict[player]) + ' lost games.')
+
+
+def game_end(message, loosing_player):
+    global tournament_rounds
+    global player_dict
+
+    tournament_rounds -= 1
+
+    if(tournament_rounds > 0):
+        player_dict[loosing_player] += 1
+        print('')
+        print(message)
+        print('You have lost ' + str(player_dict[loosing_player]) + ' rounds')
+        print( str(tournament_rounds) + ' rounds left to play!')
+        print('')
+        return False
+    else:
+        if(tournament_mode):
+            player_dict[loosing_player] += 1
+            print('')
+            print(message)
+            print('You have lost ' + str(player_dict[loosing_player]) + ' rounds')
+            print('')
+            print_tournament_results()
+            print('')
+        else:
+            print('')
+            print(message)
+        return True
+
+
+def initialize_players():
+    ''' Initializes player dictionary for some game statistics. '''
+    if(tournament_mode):
+        global player_dict
+        player_dict['man'] = 0
+        for i in range(computer_player_count):
+            player_dict['machine' + str(i + 1)] = 0
+
+
+
 def play_game():
     ''' The game loop '''
     previous_word = None
 
     print_header()
+    initialize_players()
 
     # the beginning
     while len(playable_words) > 0:
         try:
             human_word = ask_word(timer_time)
         except func_timeout.exceptions.FunctionTimedOut:
-            print('')
-            print('Timeout! You lost, sorry.')
-            break
+            if(game_end('Timeout! You lost, sorry.', 'man')):
+                break
 
         if(is_word_valid(previous_word, human_word) and is_word_playable(human_word)):
             print('man: ' + human_word)
@@ -151,11 +198,11 @@ def play_game():
                     print('machine' + str(i + 1) + ': ' + computer_word)
                     previous_word = computer_word
                 else:
-                    print('Hurraa! You won, machine lost.')
-                    return
+                    if(game_end('Hurraa! You won, machine lost.', 'machine' + str(i))):
+                        return
         else:
-            print('Game over! You lost, sorry.')
-            break
+            if(game_end('Game over! You lost, sorry.', 'man')):
+                break
 
 
 def read_arguments():
@@ -185,11 +232,13 @@ def read_arguments():
     if(options.tournament_rounds is not None):
         print('TOURNAMENT ROUNDS: ' + str(options.tournament_rounds))
         global tournament_rounds
+        global tournament_mode
         tournament_rounds = options.tournament_rounds
+        tournament_mode = True
 
 
 def main():
-    ''' The main function. Call others from here '''
+    ''' The main function. Call others from h2ere '''
     read_available_words_from_file()
     read_arguments()
     play_game()
