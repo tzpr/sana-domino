@@ -1,1 +1,8 @@
 # sana-domino
+
+
+## related links
+https://pypi.python.org/pypi/func_timeout/4.2.0
+https://docs.python.org/3/tutorial/errors.html
+https://www.thecodeship.com/patterns/guide-to-python-function-decorators/
+http://www.dreamsyssoft.com/python-scripting-tutorial/optionparser-tutorial.php
