@@ -143,12 +143,16 @@ def play_game():
             print('man: ' + human_word)
             previous_word = human_word
             remove_word_from_playable_words(human_word)
-            computer_word = get_next_word(human_word)
-            if(is_word_valid(previous_word, computer_word)):
-                print('machine: ' + computer_word)
-                previous_word = computer_word
-            else:
-                print('Hurraa! You won, machine lost.')
+            add_word_to_used_words(human_word)
+            # let the machines play
+            for i in range(computer_player_count):
+                computer_word = get_next_word(previous_word)
+                if(is_word_valid(previous_word, computer_word)):
+                    print('machine' + str(i + 1) + ': ' + computer_word)
+                    previous_word = computer_word
+                else:
+                    print('Hurraa! You won, machine lost.')
+                    return
         else:
             print('Game over! You lost, sorry.')
             break
@@ -164,6 +168,7 @@ def read_arguments():
     parser.add_option('-r', '--rounds', dest='tournament_rounds', help='Tournament mode. Give number of rounds.', type=int)
 
     (options, args) = parser.parse_args()
+
     if(options.difficulty_level is not None):
         print('LEVEL: ' + str(options.difficulty_level))
 
