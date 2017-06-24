@@ -20,7 +20,7 @@ Aktivoi ympäristö:
 ```
 . sana-domino-env/bin/activate
 ```
-Asenna tarvittavat moduulit (vain yksi)
+Asenna tarvittavat moduulit (vain yksi [func_timeout](https://pypi.python.org/pypi/func_timeout/4.2.0))
 ```
 pip install func_timeout
 ```
