@@ -15,6 +15,7 @@ tournament_rounds = 0
 FILE_NAME = 'kotus_sanat.txt'
 player_dict = {}
 tournament_mode = False
+difficulty_level = 0
 
 
 def read_available_words_from_file():
@@ -170,6 +171,19 @@ def initialize_players():
             player_dict['machine' + str(i + 1)] = 0
 
 
+def possible_random_word(difficulty_level, previous_word):
+    ''' Returns random word from playable_words list if random number is
+        smaller than difficulty_level. Yes, there is no logic in this.
+    '''
+    random_int = random.randint(1, 10)
+
+    if(random_int < difficulty_level):
+        #print('Random word!')
+        return get_random_word(playable_words)
+    else:
+        #print('Not so random word!')
+        return get_next_word(previous_word)
+
 
 def play_game():
     ''' The game loop '''
@@ -193,11 +207,16 @@ def play_game():
             add_word_to_used_words(human_word)
             # let the machines play
             for i in range(computer_player_count):
-                computer_word = get_next_word(previous_word)
+                if(difficulty_level > 0):
+                    computer_word = possible_random_word(difficulty_level, previous_word)
+                else:
+                    computer_word = get_next_word(previous_word)
+
                 if(is_word_valid(previous_word, computer_word)):
                     print('machine' + str(i + 1) + ': ' + computer_word)
                     previous_word = computer_word
                 else:
+                    print('machine' + str(i + 1) + ': ' + computer_word)
                     if(game_end('Hurraa! You won, machine lost.', 'machine' + str(i))):
                         return
         else:
@@ -218,6 +237,8 @@ def read_arguments():
 
     if(options.difficulty_level is not None):
         print('LEVEL: ' + str(options.difficulty_level))
+        global difficulty_level
+        difficulty_level = options.difficulty_level
 
     if(options.timer is not None):
         print('TIMER: ' + str(options.timer))
@@ -236,13 +257,11 @@ def read_arguments():
         tournament_rounds = options.tournament_rounds
         tournament_mode = True
 
-
 def main():
     ''' The main function. Call others from h2ere '''
     read_available_words_from_file()
     read_arguments()
     play_game()
-
 
 # start the game
 main()
