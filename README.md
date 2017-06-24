@@ -6,7 +6,7 @@ Ohjelma pelaa sana-dominoa kanssasi annetun sanalistan avulla.
 
 ### Alkutoimet
 
-Koneelle asennettuna mielellään python 3
+Koneelle asennettuna mielellään [python 3](https://www.python.org/downloads/)
 
 Kloonaa repo
 
