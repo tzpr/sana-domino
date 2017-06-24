@@ -2,7 +2,47 @@
 
 Python ohjelmointia aloittelijoille ([A930011](https://courses.helsinki.fi/fi/a930011/117989156)) -kurssin harjoitustyö.
 
-## related links
+Ohjelma pelaa sana-dominoa kanssasi annetun sanalistan avulla.
+
+### Alkutoimet
+
+Koneelle asennettuna mielellään python 3
+
+Kloonaa repo
+
+Mene sana-domino -hakemistoon
+
+Alusta virtuaaliympäristö ohjelman käyttöön:
+```
+python3 -m venv sana-domino-env
+```
+Aktivoi ympäristö:
+```
+. sana-domino-env/bin/activate
+```
+Asenna tarvittavat moduulit (vain yksi)
+```
+pip install func_timeout
+```
+
+
+### Käyttö ja pelaaminen
+```
+Usage: domino.py [options]
+
+Options:
+  -h, --help            show this help message and exit
+  -l DIFFICULTY_LEVEL, --level=DIFFICULTY_LEVEL
+                        Difficulty level for computer (1-10)
+  -t TIMER, --timer=TIMER
+                        Timeout for one move
+  -p PLAYER_COUNT, --players=PLAYER_COUNT
+                        Number of computer players
+  -r TOURNAMENT_ROUNDS, --rounds=TOURNAMENT_ROUNDS
+                        Tournament mode. Give number of rounds.
+```
+
+### Aihetta sivuavia linkkejä
 - https://pypi.python.org/pypi/func_timeout/4.2.0
 - https://docs.python.org/3/tutorial/errors.html
 - https://www.thecodeship.com/patterns/guide-to-python-function-decorators/
