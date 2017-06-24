@@ -24,6 +24,7 @@ Asenna tarvittavat moduulit (vain yksi [func_timeout](https://pypi.python.org/py
 ```
 pip install func_timeout
 ```
+Valmis.
 
 
 ### Käyttö ja pelaaminen
