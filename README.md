@@ -12,7 +12,7 @@ Kloonaa repo
 
 Mene sana-domino -hakemistoon
 
-Alusta [virtuaaliympäristö](https://docs.python.org/3/library/venv.html) ohjelman käyttöön (ei pakollista mutta kätevää koska ei sotke muuta ympäristöä):
+Alusta [virtuaaliympäristö](https://docs.python.org/3/library/venv.html) ohjelman käyttöön (ei pakollista mutta kätevää koska pitää muun ympäristön puhtaana):
 ```
 python3 -m venv sana-domino-env
 ```
