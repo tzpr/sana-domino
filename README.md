@@ -29,7 +29,7 @@ Valmis.
 
 ### Käyttö ja pelaaminen
 ```
-Usage: domino.py [options]
+Usage: python domino.py [options]
 
 Options:
   -h, --help            show this help message and exit
