@@ -1,15 +1,23 @@
 # sana-domino
 
-import random, math
+import random
+import math
+import optparse # parse commandline parameters
+import func_timeout # https://pypi.python.org/pypi/func_timeout/4.2.0
 
+
+# global variables
 used_words = []
 playable_words = []
-file_name = 'kotus_sanat.txt'
+timer_time = 0
+computer_player_count = 1
+tournament_rounds = 0
+FILE_NAME = 'kotus_sanat.txt'
 
 
 def read_available_words_from_file():
     ''' Initializes the playable words list from kotus_sanat.txt '''
-    word_file = open(file_name, 'rt') # read text file
+    word_file = open(FILE_NAME, 'rt') # read text file
     for word in word_file:
         playable_words.append(word.rstrip()) # strips all kinds of trailing whitespace by default, including newline
     word_file.close()
@@ -77,41 +85,60 @@ def is_word_valid(previous_word, word):
 
 
 def is_word_playable(word):
-    ''' Checks if the given word is not used '''
-    # can human player use words outside the playable_words list?
+    ''' Checks if the given word is not used and is among playable_words'''
     return (word not in used_words) and (word in playable_words)
 
+def timeout_message():
+    print('Timeout, sorry.')
 
-def ask_word():
-    word = input('Anna seuraava sana: ')
+
+
+def ask_word(timer_time):
+    ''' Asks user input. Reads next word from commandline. '''
+
+    def ask():
+        return input('Anna seuraava sana: ')
+
+    if(timer_time is None or timer_time == 0):
+        word = ask()
+    else:
+        # use func_timeout module to set timeout for user input
+        word = func_timeout.func_timeout(timer_time, ask, args=(), kwargs=None)
+
     return word.rstrip()
+
+
+def print_header():
+    ''' Prints a message to console when the game starts. '''
+
+    print('')
+    print('* * * * * * * * * * * * * * * * * * * * * * *')
+    print('   Game on')
+    print('* * * * * * * * * * * * * * * * * * * * * * *')
+
+    if(timer_time > 0):
+        print('')
+        print('Vastausaikaa ' + str(timer_time) + ' sekuntia!')
+        print('')
+    else:
+        print('')
 
 
 def play_game():
     ''' The game loop '''
+    previous_word = None
 
-    print('* * * * * * * * * * * * * * * * * * * * * * *')
-    print('   Game on')
-    print('* * * * * * * * * * * * * * * * * * * * * * *')
-    previous_word = ''
+    print_header()
 
     # the beginning
-    human_word = ask_word()
-    if(is_word_valid(None, human_word) and is_word_playable(human_word)):
-        print('man: ' + human_word)
-        previous_word = human_word
-        remove_word_from_playable_words(human_word)
-        computer_word = get_next_word(human_word)
-        if(is_word_valid(previous_word, computer_word)):
-            print('machine: ' + computer_word)
-            previous_word = computer_word
-        else:
-            print('Hurraa! You won, machine lost.')
-    else:
-        print('Game over! You lost, sorry.')
-
     while len(playable_words) > 0:
-        human_word = ask_word()
+        try:
+            human_word = ask_word(timer_time)
+        except func_timeout.exceptions.FunctionTimedOut:
+            print('')
+            print('Timeout! You lost, sorry.')
+            break
+
         if(is_word_valid(previous_word, human_word) and is_word_playable(human_word)):
             print('man: ' + human_word)
             previous_word = human_word
@@ -126,10 +153,40 @@ def play_game():
             print('Game over! You lost, sorry.')
             break
 
+
+def read_arguments():
+    ''' Read and store predefined optional commandline arguments. '''
+
+    parser = optparse.OptionParser()
+    parser.add_option('-l', '--level', dest='difficulty_level', help='Difficulty level for computer (1-10)', type=int)
+    parser.add_option('-t', '--timer', dest='timer', help='Timeout for one move', type=int)
+    parser.add_option('-p', '--players', dest='player_count', help='Number of computer players', type=int)
+    parser.add_option('-r', '--rounds', dest='tournament_rounds', help='Tournament mode. Give number of rounds.', type=int)
+
+    (options, args) = parser.parse_args()
+    if(options.difficulty_level is not None):
+        print('LEVEL: ' + str(options.difficulty_level))
+
+    if(options.timer is not None):
+        print('TIMER: ' + str(options.timer))
+        global timer_time
+        timer_time = options.timer
+
+    if(options.player_count is not None):
+        print('PLAYER COUNT: ' + str(options.player_count))
+        global computer_player_count
+        computer_player_count = options.player_count
+
+    if(options.tournament_rounds is not None):
+        print('TOURNAMENT ROUNDS: ' + str(options.tournament_rounds))
+        global tournament_rounds
+        tournament_rounds = options.tournament_rounds
+
+
 def main():
     ''' The main function. Call others from here '''
-    #print('Hello from main!')
     read_available_words_from_file()
+    read_arguments()
     play_game()
 
 
