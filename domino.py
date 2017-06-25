@@ -22,7 +22,7 @@ def read_available_words_from_file():
     ''' Initializes the playable words list from kotus_sanat.txt '''
     word_file = open(FILE_NAME, 'rt') # read text file
     for word in word_file:
-        playable_words.append(word.rstrip()) # strips all kinds of trailing whitespace by default, including newline
+        playable_words.append(word.rstrip()) # strips trailing newline
     word_file.close()
 
 
@@ -106,7 +106,8 @@ def ask_word(timer_time):
         word = ask()
     else:
         # use func_timeout module to set timeout for user input
-        word = func_timeout.func_timeout(timer_time, ask, args=(), kwargs=None)
+        word = func_timeout.func_timeout(timer_time, ask, args=(),
+                kwargs=None)
 
     return word.rstrip()
 
@@ -130,7 +131,8 @@ def print_header():
 def print_tournament_results():
     print(' * * * Tournament results * * * ')
     for player in player_dict:
-        print( ' - ' + player + ' ' + str(player_dict[player]) + ' lost games.')
+        print( ' - ' + player + ' ' + str(player_dict[player]) +
+                ' lost games.')
 
 
 def game_end(message, loosing_player):
@@ -152,7 +154,8 @@ def game_end(message, loosing_player):
             player_dict[loosing_player] += 1
             print('')
             print(message)
-            print('You have lost ' + str(player_dict[loosing_player]) + ' rounds')
+            print('You have lost ' + str(player_dict[loosing_player]) +
+                    ' rounds')
             print('')
             print_tournament_results()
             print('')
@@ -200,7 +203,8 @@ def play_game():
             if(game_end('Timeout! You lost, sorry.', 'man')):
                 break
 
-        if(is_word_valid(previous_word, human_word) and is_word_playable(human_word)):
+        if(is_word_valid(previous_word, human_word) and is_word_playable(
+                human_word)):
             print('man: ' + human_word)
             previous_word = human_word
             remove_word_from_playable_words(human_word)
@@ -208,7 +212,8 @@ def play_game():
             # let the machines play
             for i in range(computer_player_count):
                 if(difficulty_level > 0):
-                    computer_word = possible_random_word(difficulty_level, previous_word)
+                    computer_word = possible_random_word(difficulty_level,
+                            previous_word)
                 else:
                     computer_word = get_next_word(previous_word)
 
@@ -217,7 +222,8 @@ def play_game():
                     previous_word = computer_word
                 else:
                     print('machine' + str(i + 1) + ': ' + computer_word)
-                    if(game_end('Hurraa! You won, machine lost.', 'machine' + str(i))):
+                    if(game_end('Hurraa! You won, machine lost.', 'machine' +
+                            str(i))):
                         return
         else:
             if(game_end('Game over! You lost, sorry.', 'man')):
@@ -228,10 +234,14 @@ def read_arguments():
     ''' Read and store predefined optional commandline arguments. '''
 
     parser = optparse.OptionParser()
-    parser.add_option('-l', '--level', dest='difficulty_level', help='Difficulty level for computer (1-10)', type=int)
-    parser.add_option('-t', '--timer', dest='timer', help='Timeout for one move', type=int)
-    parser.add_option('-p', '--players', dest='player_count', help='Number of computer players', type=int)
-    parser.add_option('-r', '--rounds', dest='tournament_rounds', help='Tournament mode. Give number of rounds.', type=int)
+    parser.add_option('-l', '--level', dest='difficulty_level',
+            help='Difficulty level for computer (1-10)', type=int)
+    parser.add_option('-t', '--timer', dest='timer',
+            help='Timeout for one move', type=int)
+    parser.add_option('-p', '--players', dest='player_count',
+            help='Number of computer players', type=int)
+    parser.add_option('-r', '--rounds', dest='tournament_rounds',
+            help='Tournament mode. Give number of rounds.', type=int)
 
     (options, args) = parser.parse_args()
 
