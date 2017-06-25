@@ -51,3 +51,4 @@ Options:
 - https://docs.python.org/3/tutorial/controlflow.html
 - https://docs.python.org/3/faq/programming.html#why-am-i-getting-an-unboundlocalerror-when-the-variable-has-a-value
 - https://help.github.com/articles/basic-writing-and-formatting-syntax/
+- Python style guide: https://www.python.org/dev/peps/pep-0008/
