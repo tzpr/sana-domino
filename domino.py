@@ -31,12 +31,16 @@ def add_word_to_used_words(word, used_words):
 
 def last_letter(word):
     ''' Return the last letter of the given word. '''
-    return word[len(word) - 1]
+    return word[-1:]
 
 
 def get_random_word(words):
     ''' Returns random word from the words list. '''
     return words[randint(0, len(words))]
+
+
+def first_letter_and_last_letter_are_same(word, previous_word):
+    return word[0] == last_letter(previous_word)
 
 
 def get_next_word(previous_word, playable_words):
@@ -49,7 +53,7 @@ def get_next_word(previous_word, playable_words):
     the_word = None
 
     for word in playable_words:
-        if word[0] == last_letter(previous_word):
+        if first_letter_and_last_letter_are_same(word, previous_word):
             suitable_words.append(word)
 
     if suitable_words:
@@ -57,7 +61,6 @@ def get_next_word(previous_word, playable_words):
 
     if the_word is not None:
         remove_word_from_playable_words(the_word, playable_words)
-        #add_word_to_used_words(the_word)
         return the_word
 
     return ''
@@ -71,7 +74,7 @@ def is_word_valid(previous_word, word):
         return False
 
     if previous_word is not None and word is not None:
-        return last_letter(previous_word) == word[0]
+        return first_letter_and_last_letter_are_same(word, previous_word)
 
     return True
 
