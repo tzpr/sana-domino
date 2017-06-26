@@ -12,15 +12,15 @@ playable_words = []
 timer_time = 0
 computer_player_count = 1
 tournament_rounds = 0
-FILE_NAME = 'kotus_sanat.txt'
+WORD_FILE = 'kotus_sanat.txt'
 player_dict = {}
 tournament_mode = False
 difficulty_level = 0
 
 
 def read_available_words_from_file():
-    ''' Initializes the playable words list from kotus_sanat.txt '''
-    word_file = open(FILE_NAME, 'rt') # read text file
+    ''' Initializes the playable words list from a text file. '''
+    word_file = open(WORD_FILE, 'rt') # read text file, rt
     for word in word_file:
         playable_words.append(word.rstrip()) # strips trailing newline
     word_file.close()
@@ -107,27 +107,32 @@ def ask_word(timer_time):
     return word.rstrip()
 
 
+def game_output(message):
+    ''' Prints messages relevant to the game play. '''
+    print(message)
+
+
 def print_header():
     ''' Prints a message to console when the game starts. '''
-    print('')
-    print('* * * * * * * * * * * * * * * * * * * * * * *')
-    print('   Game on')
-    print('* * * * * * * * * * * * * * * * * * * * * * *')
+    game_output('')
+    game_output('* * * * * * * * * * * * * * * * * * * * * * *')
+    game_output('   Game on')
+    game_output('* * * * * * * * * * * * * * * * * * * * * * *')
 
     if timer_time > 0:
-        print('')
-        print('Vastausaikaa ' + str(timer_time) + ' sekuntia!')
-        print('')
+        game_output('')
+        game_output('Vastausaikaa ' + str(timer_time) + ' sekuntia!')
+        game_output('')
     else:
-        print('')
+        game_output('')
 
 
 def print_tournament_results():
     ''' Prints tournament results so we see who is the winner. '''
-    print(' * * * Tournament results * * * ')
+    game_output(' * * * Tournament results * * * ')
     for player in player_dict:
-        print(' - ' + player + ' ' + str(player_dict[player]) +
-              ' lost games.')
+        game_output(' - ' + player + ' ' + str(player_dict[player]) +
+                    ' lost games.')
 
 
 def game_end(message, loosing_player):
@@ -139,25 +144,26 @@ def game_end(message, loosing_player):
 
     if tournament_rounds > 0:
         player_dict[loosing_player] += 1
-        print('')
-        print(message)
-        print('You have lost ' + str(player_dict[loosing_player]) + ' rounds')
-        print(str(tournament_rounds) + ' rounds left to play!')
-        print('')
+        game_output('')
+        game_output(message)
+        game_output('You have lost ' + str(player_dict[loosing_player]) +
+                    ' rounds')
+        game_output(str(tournament_rounds) + ' rounds left to play!')
+        game_output('')
         return False
     else:
         if tournament_mode:
             player_dict[loosing_player] += 1
-            print('')
-            print(message)
-            print('You have lost ' + str(player_dict[loosing_player]) +
-                  ' rounds')
-            print('')
+            game_output('')
+            game_output(message)
+            game_output('You have lost ' + str(player_dict[loosing_player]) +
+                        ' rounds')
+            game_output('')
             print_tournament_results()
-            print('')
+            game_output('')
         else:
-            print('')
-            print(message)
+            game_output('')
+            game_output(message)
         return True
 
 
@@ -199,7 +205,7 @@ def play_game():
 
         if(is_word_valid(previous_word, human_word) and is_word_playable(
                 human_word)):
-            print('man: ' + human_word)
+            game_output('man: ' + human_word)
             previous_word = human_word
             remove_word_from_playable_words(human_word)
             add_word_to_used_words(human_word)
@@ -212,10 +218,10 @@ def play_game():
                     computer_word = get_next_word(previous_word)
 
                 if is_word_valid(previous_word, computer_word):
-                    print('machine' + str(i + 1) + ': ' + computer_word)
+                    game_output('machine' + str(i + 1) + ': ' + computer_word)
                     previous_word = computer_word
                 else:
-                    print('machine' + str(i + 1) + ': ' + computer_word)
+                    game_output('machine' + str(i + 1) + ': ' + computer_word)
                     if(game_end('Hurraa! You won, machine lost.', 'machine' +
                                 str(i))):
                         return
@@ -239,22 +245,18 @@ def read_arguments():
     (options, _) = parser.parse_args()
 
     if options.difficulty_level is not None:
-        print('LEVEL: ' + str(options.difficulty_level))
         global difficulty_level
         difficulty_level = options.difficulty_level
 
     if options.timer is not None:
-        print('TIMER: ' + str(options.timer))
         global timer_time
         timer_time = options.timer
 
     if options.player_count is not None:
-        print('PLAYER COUNT: ' + str(options.player_count))
         global computer_player_count
         computer_player_count = options.player_count
 
     if options.tournament_rounds is not None:
-        print('TOURNAMENT ROUNDS: ' + str(options.tournament_rounds))
         global tournament_rounds
         global tournament_mode
         tournament_rounds = options.tournament_rounds
