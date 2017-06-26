@@ -1,7 +1,7 @@
 # sana-domino
+''' sana-domino - play domino with words!'''
 
-import random
-import math
+from random import randint
 import optparse # parse commandline parameters
 import func_timeout # https://pypi.python.org/pypi/func_timeout/4.2.0
 
@@ -31,8 +31,8 @@ def remove_word_from_playable_words(word):
     try:
         global playable_words
         playable_words.remove(word)
-    except ValueError as ve:
-        print('Carry on', ve)
+    except ValueError as value_error:
+        print('Carry on', value_error)
 
 
 def add_word_to_used_words(word):
@@ -47,7 +47,7 @@ def last_letter(word):
 
 def get_random_word(words):
     ''' Returns random word from the words list. '''
-    return words[random.randint(0, len(words))]
+    return words[randint(0, len(words))]
 
 
 def get_next_word(previous_word):
@@ -60,13 +60,13 @@ def get_next_word(previous_word):
     the_word = None
 
     for word in playable_words:
-        if(word[0] == last_letter(previous_word)):
+        if word[0] == last_letter(previous_word):
             suitable_words.append(word)
 
-    if(len(suitable_words) > 0):
+    if suitable_words:
         the_word = get_random_word(suitable_words)
 
-    if(the_word is not None):
+    if the_word is not None:
         remove_word_from_playable_words(the_word)
         add_word_to_used_words(the_word)
         return the_word
@@ -78,10 +78,10 @@ def is_word_valid(previous_word, word):
     ''' Checks that the word starts with the same letter as the previous word
         ended.
     '''
-    if(word == '' or word is None):
+    if word == '' or word is None:
         return False
 
-    if(previous_word is not None and word is not None):
+    if previous_word is not None and word is not None:
         return last_letter(previous_word) == word[0]
 
     return True
@@ -91,36 +91,30 @@ def is_word_playable(word):
     ''' Checks if the given word is not used and is among playable_words'''
     return (word not in used_words) and (word in playable_words)
 
-def timeout_message():
-    print('Timeout, sorry.')
-
-
 
 def ask_word(timer_time):
     ''' Asks user input. Reads next word from commandline. '''
-
     def ask():
+        ''' Request next word from player. '''
         return input('Anna seuraava sana: ')
 
-    if(timer_time is None or timer_time == 0):
+    if timer_time is None or timer_time == 0:
         word = ask()
     else:
         # use func_timeout module to set timeout for user input
-        word = func_timeout.func_timeout(timer_time, ask, args=(),
-                kwargs=None)
+        word = func_timeout.func_timeout(timer_time, ask, args=(), kwargs=None)
 
     return word.rstrip()
 
 
 def print_header():
     ''' Prints a message to console when the game starts. '''
-
     print('')
     print('* * * * * * * * * * * * * * * * * * * * * * *')
     print('   Game on')
     print('* * * * * * * * * * * * * * * * * * * * * * *')
 
-    if(timer_time > 0):
+    if timer_time > 0:
         print('')
         print('Vastausaikaa ' + str(timer_time) + ' sekuntia!')
         print('')
@@ -129,33 +123,35 @@ def print_header():
 
 
 def print_tournament_results():
+    ''' Prints tournament results so we see who is the winner. '''
     print(' * * * Tournament results * * * ')
     for player in player_dict:
-        print( ' - ' + player + ' ' + str(player_dict[player]) +
-                ' lost games.')
+        print(' - ' + player + ' ' + str(player_dict[player]) +
+              ' lost games.')
 
 
 def game_end(message, loosing_player):
+    ''' When game ends decides the next actions. '''
     global tournament_rounds
     global player_dict
 
     tournament_rounds -= 1
 
-    if(tournament_rounds > 0):
+    if tournament_rounds > 0:
         player_dict[loosing_player] += 1
         print('')
         print(message)
         print('You have lost ' + str(player_dict[loosing_player]) + ' rounds')
-        print( str(tournament_rounds) + ' rounds left to play!')
+        print(str(tournament_rounds) + ' rounds left to play!')
         print('')
         return False
     else:
-        if(tournament_mode):
+        if tournament_mode:
             player_dict[loosing_player] += 1
             print('')
             print(message)
             print('You have lost ' + str(player_dict[loosing_player]) +
-                    ' rounds')
+                  ' rounds')
             print('')
             print_tournament_results()
             print('')
@@ -167,7 +163,7 @@ def game_end(message, loosing_player):
 
 def initialize_players():
     ''' Initializes player dictionary for some game statistics. '''
-    if(tournament_mode):
+    if tournament_mode:
         global player_dict
         player_dict['man'] = 0
         for i in range(computer_player_count):
@@ -178,29 +174,27 @@ def possible_random_word(difficulty_level, previous_word):
     ''' Returns random word from playable_words list if random number is
         smaller than difficulty_level. Yes, there is no logic in this.
     '''
-    random_int = random.randint(1, 10)
+    random_int = randint(1, 10)
 
-    if(random_int < difficulty_level):
-        #print('Random word!')
-        return get_random_word(playable_words)
+    if random_int < difficulty_level:
+        word = get_random_word(playable_words)
     else:
-        #print('Not so random word!')
-        return get_next_word(previous_word)
+        word = get_next_word(previous_word)
+    return word
 
 
 def play_game():
     ''' The game loop '''
     previous_word = None
-
     print_header()
     initialize_players()
 
-    # the beginning
-    while len(playable_words) > 0:
+    # the loop
+    while playable_words:
         try:
             human_word = ask_word(timer_time)
         except func_timeout.exceptions.FunctionTimedOut:
-            if(game_end('Timeout! You lost, sorry.', 'man')):
+            if game_end('Timeout! You lost, sorry.', 'man'):
                 break
 
         if(is_word_valid(previous_word, human_word) and is_word_playable(
@@ -211,56 +205,55 @@ def play_game():
             add_word_to_used_words(human_word)
             # let the machines play
             for i in range(computer_player_count):
-                if(difficulty_level > 0):
+                if difficulty_level > 0:
                     computer_word = possible_random_word(difficulty_level,
-                            previous_word)
+                                                         previous_word)
                 else:
                     computer_word = get_next_word(previous_word)
 
-                if(is_word_valid(previous_word, computer_word)):
+                if is_word_valid(previous_word, computer_word):
                     print('machine' + str(i + 1) + ': ' + computer_word)
                     previous_word = computer_word
                 else:
                     print('machine' + str(i + 1) + ': ' + computer_word)
                     if(game_end('Hurraa! You won, machine lost.', 'machine' +
-                            str(i))):
+                                str(i))):
                         return
         else:
-            if(game_end('Game over! You lost, sorry.', 'man')):
+            if game_end('Game over! You lost, sorry.', 'man'):
                 break
 
 
 def read_arguments():
     ''' Read and store predefined optional commandline arguments. '''
-
     parser = optparse.OptionParser()
     parser.add_option('-l', '--level', dest='difficulty_level',
-            help='Difficulty level for computer (1-10)', type=int)
+                      help='Difficulty level for computer (1-10)', type=int)
     parser.add_option('-t', '--timer', dest='timer',
-            help='Timeout for one move', type=int)
+                      help='Timeout for one move', type=int)
     parser.add_option('-p', '--players', dest='player_count',
-            help='Number of computer players', type=int)
+                      help='Number of computer players', type=int)
     parser.add_option('-r', '--rounds', dest='tournament_rounds',
-            help='Tournament mode. Give number of rounds.', type=int)
+                      help='Tournament mode. Give number of rounds.', type=int)
 
-    (options, args) = parser.parse_args()
+    (options, _) = parser.parse_args()
 
-    if(options.difficulty_level is not None):
+    if options.difficulty_level is not None:
         print('LEVEL: ' + str(options.difficulty_level))
         global difficulty_level
         difficulty_level = options.difficulty_level
 
-    if(options.timer is not None):
+    if options.timer is not None:
         print('TIMER: ' + str(options.timer))
         global timer_time
         timer_time = options.timer
 
-    if(options.player_count is not None):
+    if options.player_count is not None:
         print('PLAYER COUNT: ' + str(options.player_count))
         global computer_player_count
         computer_player_count = options.player_count
 
-    if(options.tournament_rounds is not None):
+    if options.tournament_rounds is not None:
         print('TOURNAMENT ROUNDS: ' + str(options.tournament_rounds))
         global tournament_rounds
         global tournament_mode
@@ -268,7 +261,7 @@ def read_arguments():
         tournament_mode = True
 
 def main():
-    ''' The main function. Call others from h2ere '''
+    ''' The main function. Call others from here. '''
     read_available_words_from_file()
     read_arguments()
     play_game()
