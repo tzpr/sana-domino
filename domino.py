@@ -6,35 +6,34 @@ import optparse # obs! deprecated module
 import func_timeout # https://pypi.python.org/pypi/func_timeout/4.2.0
 
 # global variables
-used_words = []
-playable_words = []
 timer_time = 0
 computer_player_count = 1
 tournament_rounds = 0
-WORD_FILE = 'kotus_sanat.txt'
+
 player_dict = {}
 tournament_mode = False
 difficulty_level = 0
 
 
-def read_available_words_from_file():
+def read_available_words_from_file(file_name):
     ''' Initializes the playable words list from a text file. '''
-    word_file = open(WORD_FILE, 'rt') # read text file, rt
+    word_file = open(file_name, 'rt') # read text file, rt
+    words = []
     for word in word_file:
-        playable_words.append(word.rstrip()) # strips trailing newline
+        words.append(word.rstrip()) # strips trailing newline
     word_file.close()
+    return words
 
 
-def remove_word_from_playable_words(word):
+def remove_word_from_playable_words(word, playable_words):
     ''' Removes the given word from playable_words list. '''
     try:
-        global playable_words
         playable_words.remove(word)
     except ValueError as value_error:
         print('Carry on', value_error)
 
 
-def add_word_to_used_words(word):
+def add_word_to_used_words(word, used_words):
     ''' Adds given word to used_words list. '''
     used_words.append(word)
 
@@ -49,7 +48,7 @@ def get_random_word(words):
     return words[randint(0, len(words))]
 
 
-def get_next_word(previous_word):
+def get_next_word(previous_word, playable_words):
     ''' Returns a word from playable_words list starting with given letter.
         Removes returned word from playable_words list and ads it to the
         used_words list.
@@ -66,8 +65,8 @@ def get_next_word(previous_word):
         the_word = get_random_word(suitable_words)
 
     if the_word is not None:
-        remove_word_from_playable_words(the_word)
-        add_word_to_used_words(the_word)
+        remove_word_from_playable_words(the_word, playable_words)
+        #add_word_to_used_words(the_word)
         return the_word
 
     return ''
@@ -86,7 +85,7 @@ def is_word_valid(previous_word, word):
     return True
 
 
-def is_word_playable(word):
+def is_word_playable(word, playable_words, used_words):
     ''' Checks if the given word is not used and is among playable_words'''
     return (word not in used_words) and (word in playable_words)
 
@@ -175,7 +174,7 @@ def initialize_players():
             player_dict['machine' + str(i + 1)] = 0
 
 
-def possible_random_word(difficulty_level, previous_word):
+def possible_random_word(difficulty_level, previous_word, playable_words):
     ''' Returns random word from playable_words list if random number is
         smaller than difficulty_level. Yes, there is no logic in this.
     '''
@@ -184,15 +183,17 @@ def possible_random_word(difficulty_level, previous_word):
     if random_int < difficulty_level:
         word = get_random_word(playable_words)
     else:
-        word = get_next_word(previous_word)
+        word = get_next_word(previous_word, playable_words)
     return word
 
 
-def play_game():
+def play_game(words, options):
     ''' The game loop '''
     previous_word = None
     print_header()
     initialize_players()
+    playable_words = words
+    used_words = []
 
     # the loop
     while playable_words:
@@ -203,18 +204,21 @@ def play_game():
                 break
 
         if(is_word_valid(previous_word, human_word) and is_word_playable(
-                human_word)):
+                human_word, playable_words, used_words)):
             game_output('man: ' + human_word)
             previous_word = human_word
-            remove_word_from_playable_words(human_word)
-            add_word_to_used_words(human_word)
+            remove_word_from_playable_words(human_word, playable_words)
+            add_word_to_used_words(human_word, used_words)
             # let the machines play
             for i in range(computer_player_count):
                 if difficulty_level > 0:
                     computer_word = possible_random_word(difficulty_level,
-                                                         previous_word)
+                                    previous_word, playable_words)
+                    add_word_to_used_words(computer_word, used_words)
                 else:
-                    computer_word = get_next_word(previous_word)
+                    computer_word = get_next_word(previous_word,
+                                                  playable_words)
+                    add_word_to_used_words(computer_word, used_words)
 
                 if is_word_valid(previous_word, computer_word):
                     game_output('machine' + str(i + 1) + ': ' + computer_word)
@@ -232,6 +236,8 @@ def play_game():
 def read_arguments():
     ''' Read and store predefined optional commandline arguments. Uses
         optparse module. '''
+    options = {}
+
     parser = optparse.OptionParser()
     parser.add_option('-l', '--level', dest='difficulty_level',
                       help='Difficulty level for computer (1-10)', type=int)
@@ -247,26 +253,33 @@ def read_arguments():
     if options.difficulty_level is not None:
         global difficulty_level
         difficulty_level = options.difficulty_level
+        options['difficulty_level'] = options.difficulty_level
 
     if options.timer is not None:
         global timer_time
         timer_time = options.timer
+        option['timer_time'] = options.timer
 
     if options.player_count is not None:
         global computer_player_count
         computer_player_count = options.player_count
+        options['computer_player_count'] = options.player_count
 
     if options.tournament_rounds is not None:
         global tournament_rounds
         global tournament_mode
         tournament_rounds = options.tournament_rounds
         tournament_mode = True
+        options['tournament_rounds'] = options.tournament_rounds
+        options['tournament_mode'] = True
+
+    return options
 
 def main():
     ''' The main function. Call others from here. '''
-    read_available_words_from_file()
-    read_arguments()
-    play_game()
+    words = read_available_words_from_file('kotus_sanat.txt')
+    options = read_arguments()
+    play_game(words, options)
 
 # start the game
 main()
