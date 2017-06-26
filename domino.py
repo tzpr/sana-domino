@@ -5,15 +5,6 @@ from random import randint
 import optparse # obs! deprecated module
 import func_timeout # https://pypi.python.org/pypi/func_timeout/4.2.0
 
-# global variables
-timer_time = 0
-computer_player_count = 1
-tournament_rounds = 0
-
-player_dict = {}
-tournament_mode = False
-difficulty_level = 0
-
 
 def read_available_words_from_file(file_name):
     ''' Initializes the playable words list from a text file. '''
@@ -110,7 +101,7 @@ def game_output(message):
     print(message)
 
 
-def print_header():
+def print_header(timer_time):
     ''' Prints a message to console when the game starts. '''
     game_output('')
     game_output('* * * * * * * * * * * * * * * * * * * * * * *')
@@ -125,39 +116,39 @@ def print_header():
         game_output('')
 
 
-def print_tournament_results():
+def print_tournament_results(players):
     ''' Prints tournament results so we see who is the winner. '''
     game_output(' * * * Tournament results * * * ')
-    for player in player_dict:
-        game_output(' - ' + player + ' ' + str(player_dict[player]) +
+    for player in players:
+        game_output(' - ' + player + ' ' + str(players[player]) +
                     ' lost games.')
 
 
-def game_end(message, loosing_player):
+def game_end(message, loosing_player, options, players):
     ''' When game ends decides the next actions. '''
-    global tournament_rounds
-    global player_dict
+    #global tournament_rounds
+    #global player_dict
 
-    tournament_rounds -= 1
+    options['tournament_rounds'] -= 1
 
-    if tournament_rounds > 0:
-        player_dict[loosing_player] += 1
+    if options['tournament_rounds'] > 0:
+        players[loosing_player] += 1
         game_output('')
         game_output(message)
-        game_output('You have lost ' + str(player_dict[loosing_player]) +
+        game_output('You have lost ' + str(players[loosing_player]) +
                     ' rounds')
-        game_output(str(tournament_rounds) + ' rounds left to play!')
+        game_output(str(options['tournament_rounds']) + ' rounds left to play!')
         game_output('')
         return False
     else:
-        if tournament_mode:
-            player_dict[loosing_player] += 1
+        if options['tournament_mode']:
+            players[loosing_player] += 1
             game_output('')
             game_output(message)
-            game_output('You have lost ' + str(player_dict[loosing_player]) +
+            game_output('You have lost ' + str(players[loosing_player]) +
                         ' rounds')
             game_output('')
-            print_tournament_results()
+            print_tournament_results(players)
             game_output('')
         else:
             game_output('')
@@ -165,13 +156,13 @@ def game_end(message, loosing_player):
         return True
 
 
-def initialize_players():
+def initialize_players(computer_player_count):
     ''' Initializes player dictionary for some game statistics. '''
-    if tournament_mode:
-        global player_dict
-        player_dict['man'] = 0
-        for i in range(computer_player_count):
-            player_dict['machine' + str(i + 1)] = 0
+    player_dict = {}
+    player_dict['man'] = 0
+    for i in range(computer_player_count):
+        player_dict['machine' + str(i + 1)] = 0
+    return player_dict
 
 
 def possible_random_word(difficulty_level, previous_word, playable_words):
@@ -190,17 +181,21 @@ def possible_random_word(difficulty_level, previous_word, playable_words):
 def play_game(words, options):
     ''' The game loop '''
     previous_word = None
-    print_header()
-    initialize_players()
     playable_words = words
     used_words = []
+    timeout = options['timer_time']
+    difficulty_level = options['difficulty_level']
+    computer_player_count = options['computer_player_count']
+    players = initialize_players(options['computer_player_count'])
+
+    print_header(timeout)
 
     # the loop
     while playable_words:
         try:
-            human_word = ask_word(timer_time)
+            human_word = ask_word(timeout)
         except func_timeout.exceptions.FunctionTimedOut:
-            if game_end('Timeout! You lost, sorry.', 'man'):
+            if game_end('Timeout! You lost, sorry.', 'man', options, players):
                 break
 
         if(is_word_valid(previous_word, human_word) and is_word_playable(
@@ -213,7 +208,8 @@ def play_game(words, options):
             for i in range(computer_player_count):
                 if difficulty_level > 0:
                     computer_word = possible_random_word(difficulty_level,
-                                    previous_word, playable_words)
+                                                         previous_word,
+                                                         playable_words)
                     add_word_to_used_words(computer_word, used_words)
                 else:
                     computer_word = get_next_word(previous_word,
@@ -226,17 +222,23 @@ def play_game(words, options):
                 else:
                     game_output('machine' + str(i + 1) + ': ' + computer_word)
                     if(game_end('Hurraa! You won, machine lost.', 'machine' +
-                                str(i))):
+                                str(i), options, players)):
                         return
         else:
-            if game_end('Game over! You lost, sorry.', 'man'):
+            if game_end('Game over! You lost, sorry.', 'man', options, players):
                 break
 
 
 def read_arguments():
     ''' Read and store predefined optional commandline arguments. Uses
         optparse module. '''
-    options = {}
+    args_dictionary = {}
+    # initialize with default values
+    args_dictionary['computer_player_count'] = 1
+    args_dictionary['timer_time'] = 0
+    args_dictionary['difficulty_level'] = 0
+    args_dictionary['tournament_rounds'] = 0
+    args_dictionary['tournament_mode'] = False
 
     parser = optparse.OptionParser()
     parser.add_option('-l', '--level', dest='difficulty_level',
@@ -251,29 +253,20 @@ def read_arguments():
     (options, _) = parser.parse_args()
 
     if options.difficulty_level is not None:
-        global difficulty_level
-        difficulty_level = options.difficulty_level
-        options['difficulty_level'] = options.difficulty_level
+        args_dictionary['difficulty_level'] = options.difficulty_level
 
     if options.timer is not None:
-        global timer_time
-        timer_time = options.timer
-        option['timer_time'] = options.timer
+        args_dictionary['timer_time'] = options.timer
 
     if options.player_count is not None:
-        global computer_player_count
-        computer_player_count = options.player_count
-        options['computer_player_count'] = options.player_count
+        args_dictionary['computer_player_count'] = options.player_count
 
     if options.tournament_rounds is not None:
-        global tournament_rounds
-        global tournament_mode
-        tournament_rounds = options.tournament_rounds
-        tournament_mode = True
-        options['tournament_rounds'] = options.tournament_rounds
-        options['tournament_mode'] = True
+        args_dictionary['tournament_rounds'] = options.tournament_rounds
+        args_dictionary['tournament_mode'] = True
 
-    return options
+    return args_dictionary
+
 
 def main():
     ''' The main function. Call others from here. '''
