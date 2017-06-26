@@ -44,6 +44,8 @@ Options:
 ```
 
 ### Aihetta sivuavia linkkejä
+- Python tyyliopas: https://www.python.org/dev/peps/pep-0008/
+- Pylint: https://www.pylint.org/
 - https://pypi.python.org/pypi/func_timeout/4.2.0
 - https://docs.python.org/3/tutorial/errors.html
 - https://www.thecodeship.com/patterns/guide-to-python-function-decorators/
@@ -51,5 +53,3 @@ Options:
 - https://docs.python.org/3/tutorial/controlflow.html
 - https://docs.python.org/3/faq/programming.html#why-am-i-getting-an-unboundlocalerror-when-the-variable-has-a-value
 - https://help.github.com/articles/basic-writing-and-formatting-syntax/
-- Python tyyliopas: https://www.python.org/dev/peps/pep-0008/
-- Pylint: https://www.pylint.org/
