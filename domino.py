@@ -2,9 +2,8 @@
 ''' sana-domino - play domino with words!'''
 
 from random import randint
-import optparse # parse commandline parameters
+import optparse # obs! deprecated module
 import func_timeout # https://pypi.python.org/pypi/func_timeout/4.2.0
-
 
 # global variables
 used_words = []
@@ -231,7 +230,8 @@ def play_game():
 
 
 def read_arguments():
-    ''' Read and store predefined optional commandline arguments. '''
+    ''' Read and store predefined optional commandline arguments. Uses
+        optparse module. '''
     parser = optparse.OptionParser()
     parser.add_option('-l', '--level', dest='difficulty_level',
                       help='Difficulty level for computer (1-10)', type=int)
