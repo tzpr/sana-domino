@@ -2,8 +2,9 @@
 ''' sana-domino - play domino with words!'''
 
 from random import randint
-import optparse # obs! deprecated module
-import func_timeout # https://pypi.python.org/pypi/func_timeout/4.2.0
+from optparse import OptionParser # obs! deprecated module (but good for now)
+from func_timeout import func_timeout # https://pypi.python.org/pypi/func_timeout/4.2.0
+from func_timeout import FunctionTimedOut
 
 
 def read_available_words_from_file(file_name):
@@ -39,7 +40,10 @@ def get_random_word(words):
     return words[randint(0, len(words))]
 
 
-def first_letter_and_last_letter_are_same(word, previous_word):
+def letters_mach(word, previous_word):
+    """ Check if the first letter of the given word is the same as the last
+        letter of the previous_word.
+    """
     return word[0] == last_letter(previous_word)
 
 
@@ -53,13 +57,13 @@ def get_next_word(previous_word, playable_words):
     the_word = None
 
     for word in playable_words:
-        if first_letter_and_last_letter_are_same(word, previous_word):
+        if letters_mach(word, previous_word):
             suitable_words.append(word)
 
     if suitable_words:
         the_word = get_random_word(suitable_words)
 
-    if the_word is not None:
+    if the_word:
         remove_word_from_playable_words(the_word, playable_words)
         return the_word
 
@@ -70,11 +74,18 @@ def is_word_valid(previous_word, word):
     ''' Checks that the word starts with the same letter as the previous word
         ended.
     '''
-    if word == '' or word is None:
+    # inner helper methods, just for fun. could be moved to some util module.
+    def the_word_does_not_exist(word):
+        return word == '' or word is None
+
+    def the_words_exist(previous_word, word):
+        return (previous_word and word)
+
+    if the_word_does_not_exist(word):
         return False
 
-    if previous_word is not None and word is not None:
-        return first_letter_and_last_letter_are_same(word, previous_word)
+    if the_words_exist(previous_word, word):
+        return letters_mach(word, previous_word)
 
     return True
 
@@ -84,17 +95,22 @@ def is_word_playable(word, playable_words, used_words):
     return (word not in used_words) and (word in playable_words)
 
 
+def no_timeout_set_for_answer(timer_time):
+    return timer_time is None or timer_time == 0
+
+
 def ask_word(timer_time):
     ''' Asks user input. Reads next word from commandline. '''
     def ask():
         ''' Request next word from player. '''
         return input('Anna seuraava sana: ')
 
-    if timer_time is None or timer_time == 0:
+    if no_timeout_set_for_answer(timer_time):
         word = ask()
     else:
         # use func_timeout module to set timeout for user input
-        word = func_timeout.func_timeout(timer_time, ask, args=(), kwargs=None)
+        # https://pypi.python.org/pypi/func_timeout/4.2.0
+        word = func_timeout(timer_time, ask, args=(), kwargs=None)
 
     return word.rstrip()
 
@@ -197,7 +213,7 @@ def play_game(words, options):
     while playable_words:
         try:
             human_word = ask_word(timeout)
-        except func_timeout.exceptions.FunctionTimedOut:
+        except FunctionTimedOut:
             if game_end('Timeout! You lost, sorry.', 'man', options, players):
                 break
 
@@ -243,7 +259,7 @@ def read_arguments():
     args_dictionary['tournament_rounds'] = 0
     args_dictionary['tournament_mode'] = False
 
-    parser = optparse.OptionParser()
+    parser = OptionParser()
     parser.add_option('-l', '--level', dest='difficulty_level',
                       help='Difficulty level for computer (1-10)', type=int)
     parser.add_option('-t', '--timer', dest='timer',
