@@ -252,40 +252,45 @@ def play_the_game(words, options):
 def read_command_line_user_arguments():
     ''' Read and store predefined optional commandline arguments. Uses
         optparse module. '''
-    args_dictionary = {}
-    # initialize with default values
-    args_dictionary['computer_player_count'] = 1
-    args_dictionary['timer_time'] = 0
-    args_dictionary['difficulty_level'] = 0
-    args_dictionary['tournament_rounds'] = 0
-    args_dictionary['tournament_mode'] = False
+    game_options_dict = {}
+    # initialize game_options_dict with default values
+    game_options_dict['computer_player_count'] = 1
+    game_options_dict['timer_time'] = 0
+    game_options_dict['difficulty_level'] = 0
+    game_options_dict['tournament_rounds'] = 0
+    game_options_dict['tournament_mode'] = False
 
     parser = OptionParser()
     parser.add_option('-l', '--level', dest='difficulty_level',
-                      help='Difficulty level for computer (1-10)', type=int)
+                      help='set the game difficulty level for the computer ' +
+                      'player from 1-10. When no level is set the computer ' +
+                      'makes no mistakes.' , type=int)
     parser.add_option('-t', '--timer', dest='timer',
-                      help='Timeout for one move', type=int)
+                      help='set the maximum time for the answer.', type=int)
     parser.add_option('-p', '--players', dest='player_count',
-                      help='Number of computer players', type=int)
+                      help='set the number of simultaneus computer players.',
+                      type=int)
     parser.add_option('-r', '--rounds', dest='tournament_rounds',
-                      help='Tournament mode. Give number of rounds.', type=int)
+                      help='set the number of rounds to be played and ' +
+                      'activate the tournament mode. The winner is the ' +
+                      'one who has the most wins.', type=int)
 
     (options, _) = parser.parse_args()
 
     if options.difficulty_level is not None:
-        args_dictionary['difficulty_level'] = options.difficulty_level
+        game_options_dict['difficulty_level'] = options.difficulty_level
 
     if options.timer is not None:
-        args_dictionary['timer_time'] = options.timer
+        game_options_dict['timer_time'] = options.timer
 
     if options.player_count is not None:
-        args_dictionary['computer_player_count'] = options.player_count
+        game_options_dict['computer_player_count'] = options.player_count
 
     if options.tournament_rounds is not None:
-        args_dictionary['tournament_rounds'] = options.tournament_rounds
-        args_dictionary['tournament_mode'] = True
+        game_options_dict['tournament_rounds'] = options.tournament_rounds
+        game_options_dict['tournament_mode'] = True
 
-    return args_dictionary
+    return game_options_dict
 
 
 def start_the_game():
