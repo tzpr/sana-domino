@@ -183,10 +183,11 @@ def initialize_players(computer_player_count):
         player_dict['machine' + str(i + 1)] = 0
     return player_dict
 
-
+# think renaming and or refactoring this one
 def possible_random_word(difficulty_level, previous_word, playable_words):
     ''' Returns random word from playable_words list if random number is
-        smaller than difficulty_level. Yes, there is no logic in this.
+        smaller than the difficulty_level given by user.
+        Yes, this is a bit fuzzy.
     '''
     random_int = randint(1, 10)
 
@@ -197,7 +198,7 @@ def possible_random_word(difficulty_level, previous_word, playable_words):
     return word
 
 
-def play_game(words, options):
+def play_the_game(words, options):
     ''' The game loop '''
     previous_word = None
     playable_words = words
@@ -248,7 +249,7 @@ def play_game(words, options):
                 break
 
 
-def read_arguments():
+def read_command_line_user_arguments():
     ''' Read and store predefined optional commandline arguments. Uses
         optparse module. '''
     args_dictionary = {}
@@ -287,11 +288,11 @@ def read_arguments():
     return args_dictionary
 
 
-def main():
+def start_the_game():
     ''' The main function. Call others from here. '''
     words = read_available_words_from_file('kotus_sanat.txt')
-    options = read_arguments()
-    play_game(words, options)
+    options = read_command_line_user_arguments()
+    play_the_game(words, options)
 
 # start the game
-main()
+start_the_game()
