@@ -27,6 +27,21 @@ pip install func_timeout
 Valmis.
 
 
+Edellä kuvatun alustuksen voi tehdä myös sana-domino -hakemistossa olevalla skriptillä (activate-env.sh).
+Skripti luo virtuaaliympäristön jos sitä ei ole ja asentaa tarvittavat moduulit sekä aktivoi ympäristön.
+
+Anna skriptille suoritusoikeus:
+
+```
+chmod u+x activate-env.sh
+``` 
+Suorita skripti:
+``` 
+. activate-env.sh
+```
+Valmis.
+
+
 ### Käyttö ja pelaaminen
 ```
 Usage: python domino.py [options]
