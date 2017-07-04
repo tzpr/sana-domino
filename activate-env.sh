@@ -1,6 +1,8 @@
 #!/bin/bash
 # create and activate python environment for sana-domino project
 # script follows loosely https://google.github.io/styleguide/shell.xml
+# about virtual envs https://docs.python.org/3/library/venv.html
+
 
 ENV_NAME=sana-domino-env
 
