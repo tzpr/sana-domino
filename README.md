@@ -68,4 +68,5 @@ Options:
 - https://docs.python.org/3/tutorial/controlflow.html
 - https://docs.python.org/3/faq/programming.html#why-am-i-getting-an-unboundlocalerror-when-the-variable-has-a-value
 - http://www.dreamsyssoft.com/unix-shell-scripting/tutorial.php
+- https://google.github.io/styleguide/shell.xml
 - https://help.github.com/articles/basic-writing-and-formatting-syntax/
