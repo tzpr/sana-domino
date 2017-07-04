@@ -35,8 +35,8 @@ else
     create_env
    
     if [ -d ${ENV_NAME} ]; then
-        install_modules
         activate_env
+        install_modules
         git_ignore_env
     else
         echo "** Failed to create environment!"
