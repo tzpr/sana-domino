@@ -7,28 +7,73 @@
 ENV_NAME=sana-domino-env
 
 
-# add created virtual env folder to .gitignore file
+#######################################
+# Add created virtual env folder to 
+# .gitignore file.
+# Globals:
+#   ENV_NAME
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
 git_ignore_env() {
     echo $ENV_NAME >> .gitignore 
 }
 
-# activate created virtual env
+
+#######################################
+# Activate the virtual env.
+# Globals:
+#   ENV_NAME
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
 activate_env() {
     . ${ENV_NAME}/bin/activate
     echo "* Virtual environment ${ENV_NAME} activated."
 }
  
-# install needed modules to created virtual env
+
+#######################################
+# Install needed modules to created env.
+#
+# Installed modules:
+# https://pypi.python.org/pypi/func_timeout/4.2.0
+# https://github.com/PyCQA/pycodestyle
+# https://pypi.python.org/pypi/autopep8/
+#
+# Globals:
+#   ENV_NAME
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
 install_modules() {
     echo "* Installing modules for ${ENV_NAME}..."
-    pip install func_timeout 
+    pip install func_timeout
+    pip install pycodestyle 
+    pip install --upgrade autopep8
 }
 
-# create virtual env
+
+#######################################
+# Create virtual env using python3.
+# Globals:
+#   ENV_NAME
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
 create_env() {
     echo "* Creating $ENV_NAME..."
     python3 -m venv ${ENV_NAME}
 }
+
 
 # the "main"
 if [ -d ${ENV_NAME} ]; then
