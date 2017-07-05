@@ -153,10 +153,15 @@ def drop_player(player, players):
 def print_header(options):
     ''' Prints a message to console when the game starts. '''
     timer_time = options['timer_time']
+    rounds = options['tournament_rounds']
+    tournament_mode = options['tournament_mode']
 
     game_output('')
     game_output('* * * * * * * * * * * * * * * * * * * * * * *')
-    game_output('   Game on')
+    if tournament_mode:
+        game_output('   Game on. Tournament! ' + str(rounds) + ' rounds.')
+    else:
+        game_output('   Game on')
     game_output('* * * * * * * * * * * * * * * * * * * * * * *')
     game_output('')
 
@@ -231,6 +236,28 @@ def read_playable_words_from_file():
     return words
 
 
+def get_tournament_winner(dict):
+    name = ''
+    wins = 0
+    multiple_winners = False
+    msg = ''
+
+    for winner in dict:
+        if dict[winner] > wins:
+            name = winner
+            wins = dict[winner]
+        elif dict[winner] == wins:
+            multiple_winners = True
+            name = name + ', ' + winner
+            wins = dict[winner]
+            
+    if multiple_winners:
+        msg = 'Voittajat ' + name + ' ' + str(wins) + ' voittoa!'
+    else:
+        msg = 'Voittaja ' + name + ' ' + str(wins) + ' voittoa!'
+    return msg
+
+
 def play_the_game(words, options):
     ''' The game loop '''
 
@@ -259,22 +286,22 @@ def play_the_game(words, options):
                     declare_winner(players.pop(0), winner_dict)
                     game_on = False
                     # tournament related
-                    if rounds > 0:
+                    if tournament_mode:
                         rounds = rounds - 1
-                        game_output('')
-                        game_output('Kierroksia jäljellä: ' + str(rounds))
-                        game_output('')
-                        # if tournament initialize_players and word list
-                        players = initialize_players(options['computer_player_count'])
-                        playable_words = read_playable_words_from_file()
-                        game_on = True
-                        previous_word = None # reset the previous word
-
-                    if tournament_mode and rounds == 0:
-                        game_output('')
-                        game_output('Turnaus päättyi!')
-                        game_output(str(winner_dict))
-                        game_on = False
+                        if rounds > 0:
+                            game_output('Kierroksia jäljellä: ' + str(rounds))
+                            game_output('')
+                            # if tournament initialize_players and word list
+                            players = initialize_players(options['computer_player_count'])
+                            playable_words = read_playable_words_from_file()
+                            game_on = True
+                            word = None # reset the previous word
+                        if rounds == 0:
+                            game_output('Turnaus päättyi!')
+                            game_output('')
+                            game_output(get_tournament_winner(winner_dict))
+                            game_output('')
+                            game_on = False
 
 
 def start_the_game():
