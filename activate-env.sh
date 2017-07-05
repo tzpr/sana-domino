@@ -44,6 +44,7 @@ activate_env() {
 # https://pypi.python.org/pypi/func_timeout/4.2.0
 # https://github.com/PyCQA/pycodestyle
 # https://pypi.python.org/pypi/autopep8/
+# https://www.pylint.org/
 #
 # Globals:
 #   ENV_NAME
@@ -57,6 +58,7 @@ install_modules() {
     pip install func_timeout
     pip install pycodestyle 
     pip install --upgrade autopep8
+    pip install pylint
 }
 
 
