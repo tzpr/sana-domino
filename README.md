@@ -44,18 +44,23 @@ Valmis.
 
 ### Käyttö ja pelaaminen
 ```
-Usage: python domino.py [options]
+Usage: python domino2.py [options]
 
 Options:
   -h, --help            show this help message and exit
   -l DIFFICULTY_LEVEL, --level=DIFFICULTY_LEVEL
-                        Difficulty level for computer (1-10)
+                        set the game difficulty level for the computer player
+                        from 1-10. When no level is set the computer makes no
+                        mistakes.
   -t TIMER, --timer=TIMER
-                        Timeout for one move
+                        set the maximum time for the answer.
   -p PLAYER_COUNT, --players=PLAYER_COUNT
-                        Number of computer players
+                        set the number of computer players. Note: computer
+                        players continue the game till the end!
   -r TOURNAMENT_ROUNDS, --rounds=TOURNAMENT_ROUNDS
-                        Tournament mode. Give number of rounds.
+                        set the number of rounds to be played and activate the
+                        tournament mode. The winner is the one who has the
+                        most wins.
 ```
 
 ### Aihetta sivuavia linkkejä
