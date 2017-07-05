@@ -345,4 +345,5 @@ def start_the_game():
     play_the_game(words, options)
 
 
-start_the_game()
+if __name__ == '__main__':
+    start_the_game()
