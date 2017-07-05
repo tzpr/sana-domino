@@ -119,7 +119,7 @@ def ask_word(timer_time):
 
 def declare_winner(player, winner_dict):
     game_output('')
-    game_output('Hurraa, ' + player + ' on voitaja!')
+    game_output('Hurraa, ' + player + ' on kierroksen voittaja!')
     game_output('')
     if player in winner_dict:
         winner_dict[player] = winner_dict[player] + 1
@@ -147,7 +147,7 @@ def possible_random_word(difficulty_level, previous_word, playable_words):
 
 
 def drop_player(player, players):
-    players.remove(player)
+    players[player] = 'dropped'
 
 
 def print_header(options):
@@ -172,10 +172,10 @@ def print_header(options):
 
 def initialize_players(computer_player_count):
     ''' Initializes player list '''
-    players = []
-    players.append('man') # the human factor
+    players = {}
+    players['man'] = 'active' # the human factor
     for i in range(computer_player_count):
-        players.append('machine' + str(i + 1))
+        players['machine' + str(i + 1)] = 'active'
     return players
 
 
@@ -248,61 +248,85 @@ def get_tournament_winner(dict):
             wins = dict[winner]
         elif dict[winner] == wins:
             multiple_winners = True
-            name = name + ', ' + winner
+            name = name + ' ja ' + winner
             wins = dict[winner]
-            
+
     if multiple_winners:
-        msg = 'Voittajat ' + name + ' ' + str(wins) + ' voittoa!'
+        msg = 'Voittajat ' + name + ', ' + str(wins) + ' voittoa!'
     else:
-        msg = 'Voittaja ' + name + ' ' + str(wins) + ' voittoa!'
+        msg = 'Voittaja ' + name + ', ' + str(wins) + ' voittoa!'
     return msg
+
+
+def player_active(player, player_dict):
+    return player_dict[player] == 'active'
+
+
+def find_winner(player_dict):
+    ''' Returns the player with flag on. '''
+    for player in player_dict:
+        if player_active(player, player_dict):
+            return player
+
+
+def only_one_player_left(dropped_players_count, players_dict):
+    return dropped_players_count == (len(players_dict) - 1)
+
+
+def end_tournament_notification(winner_dict):
+    game_output('Turnaus päättyi!')
+    game_output('')
+    game_output(get_tournament_winner(winner_dict))
+    game_output('')
 
 
 def play_the_game(words, options):
     ''' The game loop '''
-
     game_on = True
     word = None
     playable_words = words
-    winner_dict = {}  # keeps count of number of wins per player
-    players = initialize_players(options['computer_player_count'])
+    winner_dict = {}  # keeps count of wins per player
+    players_dict = initialize_players(options['computer_player_count'])
     rounds = options['tournament_rounds']
     tournament_mode = options['tournament_mode']
+    dropped_players_count = 0
 
     print_header(options)
 
     while game_on:
-        for player in players:
-            try:
-                word = get_next_word(options, player, playable_words, word)
-            except FunctionTimedOut:
-                game_output('Timeout!')
-                drop_player(player, players)
-            except Exception as bad_word_exception:
-                game_output(str(bad_word_exception))
-                drop_player(player, players)
-            finally:
-                if(len(players) == 1):
-                    declare_winner(players.pop(0), winner_dict)
-                    game_on = False
-                    # tournament related
-                    if tournament_mode:
-                        rounds = rounds - 1
-                        if rounds > 0:
-                            game_output('Kierroksia jäljellä: ' + str(rounds))
-                            game_output('')
-                            # if tournament initialize_players and word list
-                            players = initialize_players(options['computer_player_count'])
-                            playable_words = read_playable_words_from_file()
-                            game_on = True
-                            word = None # reset the previous word
-                        if rounds == 0:
-                            game_output('Turnaus päättyi!')
-                            game_output('')
-                            game_output(get_tournament_winner(winner_dict))
-                            game_output('')
-                            game_on = False
+        #print('DAADAA: ' + str(players_dict))
+        for player in players_dict:
+            if player_active(player, players_dict):
+                try:
+                    word = get_next_word(options, player, playable_words, word)
+                except FunctionTimedOut:
+                    game_output('Timeout!')
+                    drop_player(player, players_dict)
+                    dropped_players_count = dropped_players_count + 1
+                except Exception as invalid_word_exception:
+                    game_output(str(invalid_word_exception))
+                    drop_player(player, players_dict)
+                    dropped_players_count = dropped_players_count + 1
 
+            if only_one_player_left(dropped_players_count, players_dict):
+                declare_winner(find_winner(players_dict), winner_dict)
+                game_on = False
+                # tournament related
+                if tournament_mode:
+                    rounds = rounds - 1
+                    if rounds > 0:
+                        game_output('Kierroksia jäljellä: ' + str(rounds))
+                        game_output('')
+                        # initialize_players and word list for the next round
+                        players_dict = initialize_players(options['computer_player_count'])
+                        playable_words = read_playable_words_from_file()
+                        game_on = True
+                        word = None # reset the previous word
+                        dropped_players_count = 0
+                    if rounds == 0:
+                        end_tournament_notification(winner_dict)
+                        game_on = False
+                        break
 
 def start_the_game():
     ''' The main function. Call others from here. '''
