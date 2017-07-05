@@ -1,4 +1,5 @@
 # coding: utf8
+''' sana-domino peli '''
 
 from random import randint
 from optparse import OptionParser  # obs! deprecated module (but good for now)
@@ -37,8 +38,8 @@ def letters_mach(word, previous_word):
         return False
     elif previous_word is None:
         return True
-    else:
-        return word[0] == last_letter(previous_word)
+
+    return word[0] == last_letter(previous_word)
 
 
 def get_next_word_for_machine(words, previous_word):
@@ -65,7 +66,7 @@ def get_next_word(options, player, words, previous_word):
 
     if is_man(player):
         next_word = ask_word(timeout)
-        if(next_word in words):
+        if next_word in words:
             if letters_mach(next_word, previous_word):
                 game_output(player + ': ' + next_word)
                 words.remove(next_word)
@@ -78,7 +79,7 @@ def get_next_word(options, player, words, previous_word):
     else:
         if difficulty_level > 0:
             next_word = possible_random_word(difficulty_level, previous_word,
-                    words)
+                                             words)
             if next_word:
                 # TODO: refactor this
                 game_output(player + ': ' + next_word)
@@ -99,6 +100,7 @@ def get_next_word(options, player, words, previous_word):
 
 
 def no_timeout_set_for_answer(timer_time):
+    ''' Check is there a limit set for answering time. '''
     return timer_time is None or timer_time == 0
 
 
@@ -117,7 +119,8 @@ def ask_word(timer_time):
     return word.rstrip()
 
 
-def declare_winner(player, winner_dict):
+def declare_round_winner(player, winner_dict):
+    ''' Print round winner and udpate winner_dict. '''
     game_output('')
     game_output('Hurraa, ' + player + ' on kierroksen voittaja!')
     game_output('')
@@ -128,6 +131,7 @@ def declare_winner(player, winner_dict):
 
 
 def is_man(player):
+    ''' Check if player type is man. '''
     return player == 'man'
 
 
@@ -146,8 +150,9 @@ def possible_random_word(difficulty_level, previous_word, playable_words):
     return word
 
 
-def drop_player(player, players):
-    players[player] = 'dropped'
+def drop_player(player, player_dict):
+    ''' Update player's state to dropped in player_dict. '''
+    player_dict[player] = 'dropped'
 
 
 def print_header(options):
@@ -170,7 +175,7 @@ def print_header(options):
         game_output('')
 
 
-def initialize_players(computer_player_count):
+def initialize_player_dict(computer_player_count):
     ''' Initializes player list '''
     players = {}
     players['man'] = 'active' # the human factor
@@ -179,7 +184,7 @@ def initialize_players(computer_player_count):
     return players
 
 
-def read_command_line_user_arguments():
+def read_command_line_arguments():
     ''' Read and store predefined optional commandline arguments. Uses
         optparse module. '''
     game_options_dict = {}
@@ -228,28 +233,29 @@ def read_playable_words_from_file():
     ''' Initializes the playable words list from a text file. '''
     file_name = 'kotus_sanat.txt'
     # see https://developers.google.com/edu/python/dict-files#files for 'rU'
-    f = open(file_name, 'rU')  # read text file
+    word_file = open(file_name, 'rU')  # read text file
     words = []
-    for word in f:
+    for word in word_file:
         words.append(word.rstrip())  # strips trailing newline
-    f.close()
+    word_file.close()
     return words
 
 
-def get_tournament_winner(dict):
+def get_tournament_winner(winner_dict):
+    ''' Extract the tournament winner or winners from the winner_dict. '''
     name = ''
     wins = 0
     multiple_winners = False
     msg = ''
 
-    for winner in dict:
-        if dict[winner] > wins:
+    for winner in winner_dict:
+        if winner_dict[winner] > wins:
             name = winner
-            wins = dict[winner]
-        elif dict[winner] == wins:
+            wins = winner_dict[winner]
+        elif winner_dict[winner] == wins:
             multiple_winners = True
             name = name + ' ja ' + winner
-            wins = dict[winner]
+            wins = winner_dict[winner]
 
     if multiple_winners:
         msg = 'Voittajat ' + name + ', ' + str(wins) + ' voittoa!'
@@ -259,6 +265,7 @@ def get_tournament_winner(dict):
 
 
 def player_active(player, player_dict):
+    ''' Check is player in active state. '''
     return player_dict[player] == 'active'
 
 
@@ -270,10 +277,12 @@ def find_winner(player_dict):
 
 
 def only_one_player_left(dropped_players_count, players_dict):
+    ''' Check is only one active player left in the round. '''
     return dropped_players_count == (len(players_dict) - 1)
 
 
 def end_tournament_notification(winner_dict):
+    ''' Print notification and info about tournament ending. '''
     game_output('Turnaus päättyi!')
     game_output('')
     game_output(get_tournament_winner(winner_dict))
@@ -286,7 +295,7 @@ def play_the_game(words, options):
     word = None
     playable_words = words
     winner_dict = {}  # keeps count of wins per player
-    players_dict = initialize_players(options['computer_player_count'])
+    players_dict = initialize_player_dict(options['computer_player_count'])
     rounds = options['tournament_rounds']
     tournament_mode = options['tournament_mode']
     dropped_players_count = 0
@@ -294,7 +303,6 @@ def play_the_game(words, options):
     print_header(options)
 
     while game_on:
-        #print('DAADAA: ' + str(players_dict))
         for player in players_dict:
             if player_active(player, players_dict):
                 try:
@@ -309,8 +317,7 @@ def play_the_game(words, options):
                     dropped_players_count = dropped_players_count + 1
 
             if only_one_player_left(dropped_players_count, players_dict):
-                declare_winner(find_winner(players_dict), winner_dict)
-                game_on = False
+                declare_round_winner(find_winner(players_dict), winner_dict)
                 # tournament related
                 if tournament_mode:
                     rounds = rounds - 1
@@ -318,7 +325,7 @@ def play_the_game(words, options):
                         game_output('Kierroksia jäljellä: ' + str(rounds))
                         game_output('')
                         # initialize_players and word list for the next round
-                        players_dict = initialize_players(options['computer_player_count'])
+                        players_dict = initialize_player_dict(options['computer_player_count'])
                         playable_words = read_playable_words_from_file()
                         game_on = True
                         word = None # reset the previous word
@@ -327,11 +334,14 @@ def play_the_game(words, options):
                         end_tournament_notification(winner_dict)
                         game_on = False
                         break
+                game_on = False
+                break
+
 
 def start_the_game():
     ''' The main function. Call others from here. '''
     words = read_playable_words_from_file()
-    options = read_command_line_user_arguments()
+    options = read_command_line_arguments()
     play_the_game(words, options)
 
 
