@@ -193,7 +193,7 @@ def print_tournament_end_message(winner_dict):
     ''' Print notification and info about tournament ending. '''
     game_output('Turnaus päättyi!')
     game_output('')
-    game_output(get_tournament_winner(winner_dict))
+    game_output(find_tournament_winner(winner_dict))
     game_output('')
 
 
@@ -300,8 +300,8 @@ def read_playable_words_from_file():
     return words
 
 
-def get_tournament_winner(winner_dict):
-    ''' Extract the tournament winner or winners from the winner_dict. '''
+def find_tournament_winner(winner_dict):
+    ''' Get the tournament winner or winners from the winner_dict. '''
     name = ''
     wins = 0
     multiple_winners = False
@@ -374,7 +374,6 @@ def play_the_game(words, options):
                 except Exception as invalid_word_exception:
                     print_exception_and_drop_player(player, players_dict,
                                                     invalid_word_exception)
-
             if only_one_player_left(players_dict):
                 # tournament related
                 if tournament_mode:
