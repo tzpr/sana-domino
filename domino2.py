@@ -347,6 +347,7 @@ def only_one_player_left(player_dict):
 
 
 def print_elapsed_time(start_time):
+    ''' Prints the time spent in the game in seconds. '''
     game_output('Peliin käytetty aika: {}'.format(time() - start_time))
 
 
