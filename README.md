@@ -13,14 +13,17 @@ Kloonaa repo
 Mene sana-domino -hakemistoon
 
 Alusta [virtuaaliympäristö](https://docs.python.org/3/library/venv.html) ohjelman käyttöön (ei pakollista, mutta kätevää koska mahdollistaa projektikohtaisen moduulien asentelun sotkematta muuta ympäristöä):
+
 ```
 python3 -m venv sana-domino-env
 ```
 Aktivoi luotu ympäristö:
+
 ```
 . sana-domino-env/bin/activate
 ```
 Asenna tarvittavat moduulit (vain yksi, [func_timeout](https://pypi.python.org/pypi/func_timeout/4.2.0))
+
 ```
 pip install func_timeout
 ```
@@ -36,6 +39,7 @@ Anna skriptille suoritusoikeus:
 chmod u+x activate-env.sh
 ``` 
 Suorita skripti:
+
 ``` 
 . activate-env.sh
 ```
