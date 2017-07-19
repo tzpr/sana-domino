@@ -1,0 +1,18 @@
+
+
+Sana-domino
+
+Ohjelma pelauttaa sana-domino peliä kunnes jäljellä on vain yksi pelaaja tai sanavarasto loppuu kesken. Sanavarastona on tekstitiedosta jossa on listattuna pelattavissa olevat sanat.
+Ohjelma saa syötteenä tekstitiedoston jossa on listattuna pelissä käytettävissä olevat sanat. Ohjelma olettaa että tiedosto sijaitsee samassa hakemistossa ohjelman kanssa. Tiedoston sijainti on määritetty ohjelman koodissa. 
+Ohjelman käynnistyksen yhteydessä käyttäjän on mahdollista antaa ohjelmalle parametreja joiden mukaan peliä voi säätää. Käyttäjä saa listauksen mahdolisista käynnistysparametreista selitteineen antamalla käynnistyksen yhteydessä --help parametrin.
+
+
+
+
+ 
+
+
+
+
+
+
