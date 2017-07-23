@@ -2,17 +2,51 @@
 
 Sana-domino
 
-Ohjelma pelauttaa sana-domino peliä kunnes jäljellä on vain yksi pelaaja tai sanavarasto loppuu kesken. Sanavarastona on tekstitiedosta jossa on listattuna pelattavissa olevat sanat.
-Ohjelma saa syötteenä tekstitiedoston jossa on listattuna pelissä käytettävissä olevat sanat. Ohjelma olettaa että tiedosto sijaitsee samassa hakemistossa ohjelman kanssa. Tiedoston sijainti on määritetty ohjelman koodissa. 
-Ohjelman käynnistyksen yhteydessä käyttäjän on mahdollista antaa ohjelmalle parametreja joiden mukaan peliä voi säätää. Käyttäjä saa listauksen mahdolisista käynnistysparametreista selitteineen antamalla käynnistyksen yhteydessä --help parametrin.
+Ohjelma pelauttaa sana-domino peliä kunnes jäljellä on vain yksi pelaaja tai
+sanavarasto loppuu kesken. Sanavarastona on tekstitiedosto, jossa on listattuna
+pelattavissa olevat sanat.
 
+Ohjelma saa syötteenä tekstitiedoston, jossa on listattuna pelissä käytettävissä
+olevat sanat. Ohjelma olettaa, että tiedosto sijaitsee samassa hakemistossa
+ohjelman kanssa. Tiedoston sijainti on määritetty ohjelmakoodissa.
+Ohjelman käynnistyksen yhteydessä käyttäjän on mahdollista antaa ohjelmalle
+parametreja, joiden mukaan peliä voi säätää. Käyttäjä saa listauksen käytettävissä
+olevista parametreista selitteineen antamalla käynnistyksen yhteydessä --help tai
+-h parametrin (esim. python domino.py --help).
 
+Pelattavat sanat luetaan listaan, josta poistetaan sanoja sitä mukaa kun sanoja
+käytetään pelissä. Kun peli käynnistetään uudestaan joko käyttäjän toimesta tai
+turnausmoodin ollessa päällä, sanalista alustetaan uudestaan.
+Pelin pelaajat ovat dictionary-tietorakenteessa, avaimena on pelaajan nimi ja
+arvona on pelaajan status, aktiivinen tai dropped. Tilaa käytetään selvittämään
+onko pelaajia vielä pelissä mukana, yksittäinen peli päättyy kun vain yksi
+pelaaja on jäljellä. Turnausmoodissa pelien voittajista pidetään kirjaa winners-
+diktionaryssä.
 
+Pelissä voi olla mukana yksi ihmispelaaja ja n kappaletta tietokonepelaajia.
+Tietokonepelaajien lukumäärä voidaan antaa parametrilla pelin käynnistyksen
+yhteydessä. Huomioitavaa on, että tietokonepelaajat pelaavat pelin loppuun jos
+ihminen tippuu kyydistä, ja siinä voi mennä tovi! Jos tietokonepelaajille ei ole
+asetettu vaikeustasoa niin peliä pelataan kunnes sanat sattuvat loppumaan kesken.
 
- 
+Pelissä voi antaa tietokonepelaajille vaikeustason parametrilla. Vaikeustaso
+määritellään asteikolla 1-10, mitä suurempi luku sitä suuremmalla todennäköi-
+syydellä tietokone mokailee.
 
+Pelissä voi pelata turnauksen antamalla parametrina turnauskierrosten lukumäärän.
+Turnauksen voittaa eniten voittoja kerännyt pelaaja.
 
+Pelissä voi antaa aikarajan vastauksille ohjelman käynnistysparametrilla. Raja-aika
+kohdistuu vain ihmispelaajaan, koska tietokonepelaajat eivät tuumi vaan vastaavat
+aina samantien jos sanoja on vielä käytettävissä.
 
+Peli pyörii while-silmukassa kunnes game_on-muuttujan arvo asetetaan epätodeksi.
+Peli päättyy kun vain yksi pelaaja on jäljellä pelissä ja pelataan yksittäistä
+peliä tai kyseessä on turnauksen viimeinen kierros. Sanojen tarkastukset aiheuttavat
+virheellisen sanan kohdalla poikkeuksia, jotka otetaan kiinni ja pelaajalle
+näytetään viesti. Myös mahdollisen vastausajan loppuminen aiheuttaa poikkeuksen,
+joka otetaan kiinni ja pelaajalle näytetään asiaan kuuluva viesti.
 
-
-
+Vastausajan toteutuksessa käytetään func_timeout-moduulia. Ohjelman käynnistyksen
+yhteydessä annettavien parametrien lukemiseen käytetään optparse-moduulia.
+Muita käytettyjä moduuleita ovat time ja random.
