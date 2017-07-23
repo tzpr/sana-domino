@@ -9,6 +9,13 @@ from func_timeout import func_timeout
 from func_timeout import FunctionTimedOut
 
 
+EXCEPTION_MSG_DICT = {
+    'letters_did_not_match': 'Eka kirjain ei ollut vika kirjain!',
+    'invalid_word': 'Sana ei ole käytettävissä!',
+    'no_words_left': 'Sanat loppuivat kesken!',
+    'timeout': 'Aika loppui kesken!'
+}
+
 def game_output(message):
     ''' Prints messages relevant to the game play. '''
     print('  ' + message)
@@ -73,9 +80,9 @@ def get_next_word(options, player, words, previous_word):
                 return next_word
             else:
                 words.remove(next_word)
-                raise Exception('Eka kirjain ei ollut vika kirjain!')
+                raise Exception(EXCEPTION_MSG_DICT['letters_did_not_match'])
         else:
-            raise Exception('Sana ei ole käytettävissä!')
+            raise Exception(EXCEPTION_MSG_DICT['invalid_word'])
     else:
         if difficulty_level > 0:
             next_word = possible_random_word(difficulty_level, previous_word,
@@ -84,10 +91,10 @@ def get_next_word(options, player, words, previous_word):
                 game_output('{}: {}'.format(player, next_word))
                 if not letters_mach(next_word, previous_word):
                     words.remove(next_word)
-                    raise Exception('Eka kirjain ei ollut vika kirjain!')
+                    raise Exception(EXCEPTION_MSG_DICT['letters_did_not_match'])
                 return next_word
             else:
-                raise Exception('Sanat loppuivat kesken!')
+                raise Exception(EXCEPTION_MSG_DICT['no_words_left'])
         else:
             next_word = get_next_word_for_machine(words, previous_word)
             if next_word:
@@ -95,12 +102,12 @@ def get_next_word(options, player, words, previous_word):
                 words.remove(next_word)
                 return next_word
             else:
-                raise Exception('Sanat loppuivat kesken!')
+                raise Exception(EXCEPTION_MSG_DICT['no_words_left'])
 
 
-def no_timeout_set_for_answer(timer_time):
+def timeout_set_for_answer(timer_time):
     ''' Check is there a limit set for answering time. '''
-    return timer_time is None or timer_time == 0
+    return timer_time and timer_time > 0
 
 
 def ask_word(timer_time):
@@ -109,12 +116,13 @@ def ask_word(timer_time):
         ''' Request next word from player. '''
         return input('Anna seuraava sana: ')
 
-    if no_timeout_set_for_answer(timer_time):
-        word = ask()
-    else:
+    if timeout_set_for_answer(timer_time):
         # use func_timeout module to set timeout for user input
         # https://pypi.python.org/pypi/func_timeout/4.2.0
         word = func_timeout(timer_time, ask, args=(), kwargs=None)
+    else:
+        word = ask()
+
     return word.rstrip()
 
 
@@ -212,7 +220,7 @@ def print_tournament_round_info(rounds):
 def initialize_player_dict(computer_player_count):
     ''' Initializes player list '''
     players = {}
-    players['man'] = 'active' # the human factor
+    players['man'] = 'active'
     for i in range(computer_player_count):
         players['machine' + str(i + 1)] = 'active'
     return players
@@ -348,7 +356,9 @@ def only_one_player_left(player_dict):
 
 def print_elapsed_time(start_time):
     ''' Prints the time spent in the game in seconds. '''
-    game_output('Peliin käytetty aika: {}'.format(time() - start_time))
+    time_gone = round((time() - start_time), 0)
+    game_output('Peliin käytetty aika: {} sekuntia.'.format(time_gone))
+    game_output('')
 
 
 def play_the_game(words, options):
@@ -369,9 +379,9 @@ def play_the_game(words, options):
             if player_active(player, players_dict):
                 try:
                     word = get_next_word(options, player, playable_words, word)
-                except FunctionTimedOut as timeout_exception:
+                except FunctionTimedOut:
                     print_exception_and_drop_player(player, players_dict,
-                                                    timeout_exception)
+                                                    EXCEPTION_MSG_DICT['timeout'])
                 except Exception as invalid_word_exception:
                     print_exception_and_drop_player(player, players_dict,
                                                     invalid_word_exception)
