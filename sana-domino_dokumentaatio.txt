@@ -1,9 +1,7 @@
 
 Python ohjelmointia aloittelijoille harjoitustehtävä, kesä 2017
 
-Sana-domino
-
-(https://github.com/tzpr/sana-domino)
+Sana-domino (https://github.com/tzpr/sana-domino)
 
 Ohjelma pelauttaa sana-domino peliä kunnes jäljellä on vain yksi pelaaja tai
 sanavarasto loppuu kesken. Sanavarastona on tekstitiedosto, jossa on listattuna
@@ -15,7 +13,7 @@ ohjelman kanssa. Tiedoston sijainti on määritetty ohjelmakoodissa.
 Ohjelman käynnistyksen yhteydessä käyttäjän on mahdollista antaa ohjelmalle
 parametreja, joiden mukaan peliä voi säätää. Käyttäjä saa listauksen käytettävissä
 olevista parametreista selitteineen antamalla käynnistyksen yhteydessä --help tai
--h parametrin (esim. python domino.py --help).
+-h parametrin (esim. python sana-domino.py --help).
 
 Pelattavat sanat luetaan listaan, josta poistetaan sanoja sitä mukaa kun sanoja
 käytetään pelissä. Kun peli käynnistetään uudestaan joko käyttäjän toimesta tai
