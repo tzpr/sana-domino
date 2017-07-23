@@ -1,6 +1,9 @@
 
+Python ohjelmointia aloittelijoille harjoitustehtävä, kesä 2017
 
 Sana-domino
+
+(https://github.com/tzpr/sana-domino)
 
 Ohjelma pelauttaa sana-domino peliä kunnes jäljellä on vain yksi pelaaja tai
 sanavarasto loppuu kesken. Sanavarastona on tekstitiedosto, jossa on listattuna
