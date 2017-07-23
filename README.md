@@ -48,7 +48,7 @@ Valmis.
 
 ### Käyttö ja pelaaminen
 ```
-Usage: python domino2.py [options]
+Usage: python sana-domino.py [options]
 
 Options:
   -h, --help            show this help message and exit
