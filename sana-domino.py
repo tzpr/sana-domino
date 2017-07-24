@@ -4,8 +4,7 @@
 from time import time
 from random import randint
 from optparse import OptionParser  # obs! deprecated module (but good for now)
-# https://pypi.python.org/pypi/func_timeout/4.2.0
-from func_timeout import func_timeout
+from func_timeout import func_timeout # https://pypi.python.org/pypi/func_timeout/4.2.0
 from func_timeout import FunctionTimedOut
 
 
