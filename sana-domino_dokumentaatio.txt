@@ -5,7 +5,9 @@ Sana-domino (https://github.com/tzpr/sana-domino)
 
 Ohjelma pelauttaa sana-domino peliä kunnes jäljellä on vain yksi pelaaja tai
 sanavarasto loppuu kesken. Sanavarastona on tekstitiedosto, jossa on listattuna
-pelattavissa olevat sanat.
+pelattavissa olevat sanat. Ohjelma tulostaa konsoliin viestejä pelin kulusta sekä
+pelin voittajan ja turnausmoodissa turnauksen voittajan. Pelin loputtua tulostetaan
+myös peliin käytetty aika sekunteina.
 
 Ohjelma saa syötteenä tekstitiedoston, jossa on listattuna pelissä käytettävissä
 olevat sanat. Ohjelma olettaa, että tiedosto sijaitsee samassa hakemistossa
@@ -19,16 +21,18 @@ Pelattavat sanat luetaan listaan, josta poistetaan sanoja sitä mukaa kun sanoja
 käytetään pelissä. Kun peli käynnistetään uudestaan joko käyttäjän toimesta tai
 turnausmoodin ollessa päällä, sanalista alustetaan uudestaan.
 Pelin pelaajat ovat dictionary-tietorakenteessa, avaimena on pelaajan nimi ja
-arvona on pelaajan status, aktiivinen tai dropped. Tilaa käytetään selvittämään
+arvona on pelaajan status, active tai dropped. Tilaa käytetään selvittämään
 onko pelaajia vielä pelissä mukana, yksittäinen peli päättyy kun vain yksi
 pelaaja on jäljellä. Turnausmoodissa pelien voittajista pidetään kirjaa winners-
-diktionaryssä.
+dictionaryssä.
 
 Pelissä voi olla mukana yksi ihmispelaaja ja n kappaletta tietokonepelaajia.
 Tietokonepelaajien lukumäärä voidaan antaa parametrilla pelin käynnistyksen
 yhteydessä. Huomioitavaa on, että tietokonepelaajat pelaavat pelin loppuun jos
-ihminen tippuu kyydistä, ja siinä voi mennä tovi! Jos tietokonepelaajille ei ole
-asetettu vaikeustasoa niin peliä pelataan kunnes sanat sattuvat loppumaan kesken.
+ihminen tippuu kyydistä, ja siinä menee tovi! Esimerkiksi kolmella
+konepelaajalla ilman vaikeustason asetusta pelissä voi mennä viitisen minuuttia.
+Jos tietokonepelaajille ei ole asetettu vaikeustasoa niin peliä pelataan kunnes
+sanat sattuvat loppumaan kesken.
 
 Pelissä voi antaa tietokonepelaajille vaikeustason parametrilla. Vaikeustaso
 määritellään asteikolla 1-10, mitä suurempi luku sitä suuremmalla todennäköi-
@@ -38,8 +42,8 @@ Pelissä voi pelata turnauksen antamalla parametrina turnauskierrosten lukumää
 Turnauksen voittaa eniten voittoja kerännyt pelaaja.
 
 Pelissä voi antaa aikarajan vastauksille ohjelman käynnistysparametrilla. Raja-aika
-kohdistuu vain ihmispelaajaan, koska tietokonepelaajat eivät tuumi vaan vastaavat
-aina samantien jos sanoja on vielä käytettävissä.
+kohdistuu vain ihmispelaajaan, tietokonepelaajat eivät tuumi vaan vastaavat aina
+samantien jos sanoja on vielä käytettävissä.
 
 Peli pyörii while-silmukassa kunnes game_on-muuttujan arvo asetetaan epätodeksi.
 Peli päättyy kun vain yksi pelaaja on jäljellä pelissä ja pelataan yksittäistä
