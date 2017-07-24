@@ -20,7 +20,7 @@ def game_output(message):
     print('  ' + message)
 
 def get_random_word(words):
-    ''' Returns random word from the words list. '''
+    ''' Returns random word from the words list or None if no words left. '''
     if words and len(words) >= 2:
         word = words[randint(0, len(words)-1)]
     elif words and len(words) == 1:
@@ -43,29 +43,28 @@ def letters_mach(word, previous_word):
         return True
     return word[0] == last_letter(previous_word)
 
-def get_next_word_for_machine(words, previous_word):
+def get_next_word_for_machine(playable_words, previous_word, difficulty_level):
     ''' Returns a word from playable_words list starting with given letter.
-        Returns None if no word can be found by given letter.
+        Returns None if no word can be found by given letter. Return random
+        word if diffculty level is set and randomnes occures.
     '''
     suitable_words = []
-    next_word = None
-
-    for word in words:
+    # handle possible random word
+    if difficulty_level and difficulty_level > 0:
+        random_int = randint(1, 10)
+        if random_int < difficulty_level:
+            return get_random_word(playable_words)
+    # try to find possible playable words
+    for word in playable_words:
         if letters_mach(word, previous_word):
             suitable_words.append(word)
+    return get_random_word(suitable_words)
 
-    if suitable_words:
-        next_word = get_random_word(suitable_words)
-    return next_word
-
-# maybe some refactoring
 def get_next_word(options, player, words, previous_word):
     ''' Finds and returns the word or None'''
-    timeout = options['timer_time']
-    difficulty_level = options['difficulty_level']
 
-    if is_man(player):
-        next_word = ask_word(timeout)
+    if is_human(player):
+        next_word = ask()
         if next_word in words:
             if letters_mach(next_word, previous_word):
                 game_output(player + ': ' + next_word)
@@ -77,43 +76,21 @@ def get_next_word(options, player, words, previous_word):
         else:
             raise Exception(EXCEPTION_MSG_DICT['invalid_word'])
     else:
-        if difficulty_level > 0:
-            next_word = possible_random_word(difficulty_level, previous_word,
-                                             words)
-            if next_word:
-                game_output('{}: {}'.format(player, next_word))
-                if not letters_mach(next_word, previous_word):
-                    words.remove(next_word)
-                    raise Exception(EXCEPTION_MSG_DICT['letters_did_not_match'])
-                return next_word
-            else:
-                raise Exception(EXCEPTION_MSG_DICT['no_words_left'])
-        else:
-            next_word = get_next_word_for_machine(words, previous_word)
-            if next_word:
-                game_output('{}: {}'.format(player, next_word))
+        next_word = get_next_word_for_machine(words, previous_word,
+                                              options['difficulty_level'])
+
+        if next_word:
+            game_output('{}: {}'.format(player, next_word))
+            if not letters_mach(next_word, previous_word):
                 words.remove(next_word)
-                return next_word
-            else:
-                raise Exception(EXCEPTION_MSG_DICT['no_words_left'])
+                raise Exception(EXCEPTION_MSG_DICT['letters_did_not_match'])
+            return next_word
+        else:
+            raise Exception(EXCEPTION_MSG_DICT['no_words_left'])
 
-def timeout_set_for_answer(timer_time):
-    ''' Check is there a limit set for answering time. '''
-    return timer_time and timer_time > 0
-
-def ask_word(timer_time):
+def ask():
     ''' Request next word from player. '''
-    def ask():
-        ''' Request next word from player. '''
-        return input('Anna seuraava sana: ')
-
-    if timeout_set_for_answer(timer_time):
-        # use func_timeout module to set timeout for user input
-        # https://pypi.python.org/pypi/func_timeout/4.2.0
-        word = func_timeout(timer_time, ask, args=(), kwargs=None)
-    else:
-        word = ask()
-    return word.rstrip()
+    return input('Anna seuraava sana: ').rstrip()
 
 def declare_round_winner(player, winner_dict):
     ''' Print round winner and udpate winner_dict. '''
@@ -203,23 +180,9 @@ def initialize_player_dict(computer_player_count):
         players['machine' + str(i + 1)] = 'active'
     return players
 
-def is_man(player):
+def is_human(player):
     ''' Check if player type is man. '''
     return player == 'man'
-
-# think renaming and or refactoring
-def possible_random_word(difficulty_level, previous_word, playable_words):
-    ''' Returns random word from playable_words list if random number is
-        smaller than the difficulty_level given by user.
-        Yes, this is a bit fuzzy.
-    '''
-    random_int = randint(1, 10)
-
-    if random_int < difficulty_level:
-        word = get_random_word(playable_words)
-    else:
-        word = get_next_word_for_machine(playable_words, previous_word)
-    return word
 
 def drop_player(player, player_dict):
     ''' Update player's state to dropped in player_dict. '''
@@ -335,7 +298,8 @@ def play_the_game(words, options):
     players_dict = initialize_player_dict(options['computer_player_count'])
     rounds = options['tournament_rounds']
     tournament_mode = options['tournament_mode']
-    start_time = time()
+    time_limit = options['timer_time'] or 120 # two minute default
+    game_start_time = time()
 
     print_header(options)
 
@@ -343,7 +307,10 @@ def play_the_game(words, options):
         for player in players_dict:
             if player_active(player, players_dict):
                 try:
-                    word = get_next_word(options, player, playable_words, word)
+                    # use func_timeout module to set timeout for user input
+                    word = func_timeout(time_limit, get_next_word,
+                                        args=(options, player, playable_words,
+                                              word), kwargs=None)
                 except FunctionTimedOut:
                     print_exception_and_drop_player(player, players_dict,
                                                     EXCEPTION_MSG_DICT['timeout'])
@@ -365,12 +332,12 @@ def play_the_game(words, options):
                         word = None # reset the previous word
                     if rounds == 0:
                         print_tournament_end_message(winner_dict)
-                        print_elapsed_time(start_time)
+                        print_elapsed_time(game_start_time)
                         game_on = False
                         break
                 else:
                     declare_game_winner(find_winner(players_dict))
-                    print_elapsed_time(start_time)
+                    print_elapsed_time(game_start_time)
                     game_on = False
                     break
 
