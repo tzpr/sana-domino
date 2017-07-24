@@ -44,9 +44,9 @@ def letters_mach(word, previous_word):
     return word[0] == last_letter(previous_word)
 
 def get_next_word_for_machine(playable_words, previous_word, difficulty_level):
-    ''' Returns a word from playable_words list starting with given letter.
-        Returns None if no word can be found by given letter. Return random
-        word if diffculty level is set and randomnes occures.
+    ''' Returns a word from playable_words list starting with given letter or
+        None. Returns random word if diffculty level is set and randomnes
+        occures.
     '''
     suitable_words = []
     # handle possible random word
@@ -61,13 +61,17 @@ def get_next_word_for_machine(playable_words, previous_word, difficulty_level):
     return get_random_word(suitable_words)
 
 def get_next_word(options, player, words, previous_word):
-    ''' Finds and returns the word or None'''
+    ''' Finds and returns the word or None. '''
 
-    if is_human(player):
-        next_word = ask()
+    if player_human(player):
+        next_word = input('Anna seuraava sana: ').rstrip()
+    else:
+        next_word = get_next_word_for_machine(words, previous_word,
+                                              options['difficulty_level'])
+    if next_word:
         if next_word in words:
+            game_output('{}: {}'.format(player, next_word))
             if letters_mach(next_word, previous_word):
-                game_output(player + ': ' + next_word)
                 words.remove(next_word)
                 return next_word
             else:
@@ -76,21 +80,7 @@ def get_next_word(options, player, words, previous_word):
         else:
             raise Exception(EXCEPTION_MSG_DICT['invalid_word'])
     else:
-        next_word = get_next_word_for_machine(words, previous_word,
-                                              options['difficulty_level'])
-
-        if next_word:
-            game_output('{}: {}'.format(player, next_word))
-            if not letters_mach(next_word, previous_word):
-                words.remove(next_word)
-                raise Exception(EXCEPTION_MSG_DICT['letters_did_not_match'])
-            return next_word
-        else:
-            raise Exception(EXCEPTION_MSG_DICT['no_words_left'])
-
-def ask():
-    ''' Request next word from player. '''
-    return input('Anna seuraava sana: ').rstrip()
+        raise Exception(EXCEPTION_MSG_DICT['no_words_left'])
 
 def declare_round_winner(player, winner_dict):
     ''' Print round winner and udpate winner_dict. '''
@@ -180,7 +170,7 @@ def initialize_player_dict(computer_player_count):
         players['machine' + str(i + 1)] = 'active'
     return players
 
-def is_human(player):
+def player_human(player):
     ''' Check if player type is man. '''
     return player == 'man'
 
