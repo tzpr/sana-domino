@@ -19,7 +19,7 @@ def game_output(message):
     ''' Prints messages relevant to the game play. '''
     print('  ' + message)
 
-def get_random_word(words):
+def random_word(words):
     ''' Returns random word from the words list or None if no words left. '''
     if words and len(words) >= 2:
         word = words[randint(0, len(words)-1)]
@@ -29,58 +29,41 @@ def get_random_word(words):
         word = None
     return word
 
-def last_letter(word):
-    ''' Return the last letter of the given word. '''
-    return word[-1:]
-
-def letters_mach(word, previous_word):
+def first_letter_is_last_letter(new_word, previous_word):
     """ Check if the first letter of the given word is the same as the last
         letter of the previous_word.
     """
-    if word is None or word == '':
+    if new_word is None or new_word == '':
         return False
     elif previous_word is None:
         return True
-    return word[0] == last_letter(previous_word)
+    return new_word[0] == previous_word[-1:]
 
 def get_next_word_for_machine(playable_words, previous_word, difficulty_level):
-    ''' Returns a word from playable_words list starting with given letter or
-        None. Returns random word if diffculty level is set and randomnes
-        occures.
+    ''' Returns a word from playable_words list starting with given letter.
+        Returns random word if diffculty level is set and randomnes occures.
+        None is returned if no words are left.
     '''
     suitable_words = []
     # handle possible random word
     if difficulty_level and difficulty_level > 0:
         random_int = randint(1, 10)
         if random_int < difficulty_level:
-            return get_random_word(playable_words)
+            return random_word(playable_words)
     # try to find possible playable words
     for word in playable_words:
-        if letters_mach(word, previous_word):
+        if first_letter_is_last_letter(word, previous_word):
             suitable_words.append(word)
-    return get_random_word(suitable_words)
+    return random_word(suitable_words)
 
-def get_next_word(options, player, words, previous_word):
-    ''' Finds and returns the word or None. '''
-
+def get_next_word(difficulty_level, player, playable_words, previous_word):
+    ''' The next word. '''
     if player_human(player):
         next_word = input('Anna seuraava sana: ').rstrip()
     else:
-        next_word = get_next_word_for_machine(words, previous_word,
-                                              options['difficulty_level'])
-    if next_word:
-        if next_word in words:
-            game_output('{}: {}'.format(player, next_word))
-            if letters_mach(next_word, previous_word):
-                words.remove(next_word)
-                return next_word
-            else:
-                words.remove(next_word)
-                raise Exception(EXCEPTION_MSG_DICT['letters_did_not_match'])
-        else:
-            raise Exception(EXCEPTION_MSG_DICT['invalid_word'])
-    else:
-        raise Exception(EXCEPTION_MSG_DICT['no_words_left'])
+        next_word = get_next_word_for_machine(playable_words, previous_word,
+                                              difficulty_level)
+    return next_word
 
 def declare_round_winner(player, winner_dict):
     ''' Print round winner and udpate winner_dict. '''
@@ -98,21 +81,21 @@ def update_winner_dict(player, winner_dict):
     else:
         winner_dict[player] = 1
 
-def print_tournament_round_winner(winner):
+def print_tournament_round_winner(player):
     ''' Print tournament round winner message. '''
     game_output('')
-    game_output('Hurraa, {} on kierroksen voittaja!'.format(winner))
+    game_output('Hurraa, {} on kierroksen voittaja!'.format(player))
     game_output('')
 
-def print_game_winner(winner):
+def print_game_winner(player):
     ''' Print game winner message. '''
     game_output('')
-    game_output('Hurraa, {} on pelin voittaja!'.format(winner))
+    game_output('Hurraa, {} on pelin voittaja!'.format(player))
     game_output('')
 
 def print_header(options):
     ''' Prints a message to console when the game starts. '''
-    timer_time = options['timer_time']
+    time_limit = options['timer_time']
     rounds = options['tournament_rounds']
     tournament_mode = options['tournament_mode']
 
@@ -121,8 +104,8 @@ def print_header(options):
     else:
         print_game_start_message()
 
-    if timer_time > 0:
-        print_game_timeout_info(timer_time)
+    if time_limit > 0:
+        print_game_time_limit_info(time_limit)
 
 def print_game_start_message():
     ''' Print game start message '''
@@ -140,9 +123,9 @@ def print_tournament_start_message(rounds):
     game_output('* * * * * * * * * * * * * * * * * * * * * * *')
     game_output('')
 
-def print_game_timeout_info(timer_time):
+def print_game_time_limit_info(time_limit):
     ''' Print game timeout info if timeout is set  '''
-    game_output('Vastausaikaa {} sekuntia!'.format(timer_time))
+    game_output('Vastausaikaa {} sekuntia!'.format(time_limit))
     game_output('')
 
 def print_tournament_end_message(winner_dict):
@@ -157,9 +140,9 @@ def print_exception_and_drop_player(player, players_dict, exception):
     game_output(str(exception))
     drop_player(player, players_dict)
 
-def print_tournament_round_info(rounds):
+def print_tournament_round_info(num_of_rounds):
     ''' Print tournament round information '''
-    game_output('Kierroksia jäljellä: {}'.format(rounds))
+    game_output('Kierroksia jäljellä: {}'.format(num_of_rounds))
     game_output('')
 
 def initialize_player_dict(computer_player_count):
@@ -222,7 +205,7 @@ def read_command_line_arguments():
     return game_options_dict
 
 def read_playable_words_from_file():
-    ''' Initializes the playable words list from a text file. '''
+    ''' Initializes the playable words list from a file (kotus_sanat.txt). '''
     file_name = 'kotus_sanat.txt'
     # see https://developers.google.com/edu/python/dict-files#files for 'rU'
     word_file = open(file_name, 'rU')  # read text file
@@ -279,16 +262,33 @@ def print_elapsed_time(start_time):
     game_output('Peliin käytetty aika: {} sekuntia.'.format(time_gone))
     game_output('')
 
+# refactor? remove exceptions. remove output, just validation.
+def validate(player, word, previous_word, playable_words):
+    if word:
+        if word in playable_words:
+            game_output('{}: {}'.format(player, word))
+            if first_letter_is_last_letter(word, previous_word):
+                playable_words.remove(word)
+                return word
+            else:
+                playable_words.remove(word)
+                raise Exception(EXCEPTION_MSG_DICT['letters_did_not_match'])
+        else:
+            raise Exception(EXCEPTION_MSG_DICT['invalid_word'])
+    else:
+        raise Exception(EXCEPTION_MSG_DICT['no_words_left'])
+
 def play_the_game(words, options):
     ''' The game loop '''
     game_on = True
-    word = None
+    previous_word = None
     playable_words = words
     winner_dict = {}  # keeps count of wins per player
     players_dict = initialize_player_dict(options['computer_player_count'])
     rounds = options['tournament_rounds']
     tournament_mode = options['tournament_mode']
     time_limit = options['timer_time'] or 120 # two minute default
+    difficulty_level = options['difficulty_level']
     game_start_time = time()
 
     print_header(options)
@@ -297,10 +297,11 @@ def play_the_game(words, options):
         for player in players_dict:
             if player_active(player, players_dict):
                 try:
-                    # use func_timeout module to set timeout for user input
+                    # use func_timeout module to trigger time limit
                     word = func_timeout(time_limit, get_next_word,
-                                        args=(options, player, playable_words,
-                                              word), kwargs=None)
+                                        args=(difficulty_level, player, playable_words,
+                                              previous_word), kwargs=None)
+                    previous_word = validate(player, word, previous_word, playable_words)
                 except FunctionTimedOut:
                     print_exception_and_drop_player(player, players_dict,
                                                     EXCEPTION_MSG_DICT['timeout'])
@@ -319,7 +320,7 @@ def play_the_game(words, options):
                             'computer_player_count'])
                         playable_words = read_playable_words_from_file()
                         game_on = True
-                        word = None # reset the previous word
+                        previous_word = None # reset the previous word
                     if rounds == 0:
                         print_tournament_end_message(winner_dict)
                         print_elapsed_time(game_start_time)
