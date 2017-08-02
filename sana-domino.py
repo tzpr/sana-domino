@@ -8,6 +8,7 @@ from func_timeout import func_timeout # https://pypi.python.org/pypi/func_timeou
 from func_timeout import FunctionTimedOut
 
 
+# global variable that holds the error messages shown to player
 EXCEPTION_MSG_DICT = {
     'letters_did_not_match': 'Eka kirjain ei ollut vika kirjain!',
     'invalid_word': 'Sana ei ole käytettävissä!',
@@ -30,7 +31,7 @@ def random_word(words):
     return word
 
 def first_letter_is_last_letter(new_word, previous_word):
-    """ Check if the first letter of the given word is the same as the last
+    """ Check if the first letter of the new_word is the same as the last
         letter of the previous_word.
     """
     if new_word is None or new_word == '':
@@ -42,7 +43,7 @@ def first_letter_is_last_letter(new_word, previous_word):
 def get_next_word_for_machine(playable_words, previous_word, difficulty_level):
     ''' Returns a word from playable_words list starting with given letter.
         Returns random word if diffculty level is set and randomnes occures.
-        None is returned if no words are left.
+        None is returned if no words are left in playable_words list.
     '''
     suitable_words = []
     # handle possible random word
@@ -139,6 +140,7 @@ def print_exception_and_drop_player(player, players_dict, exception):
     ''' Post invalid_word_exception actions '''
     game_output(str(exception))
     drop_player(player, players_dict)
+    game_output('')
 
 def print_tournament_round_info(num_of_rounds):
     ''' Print tournament round information '''
@@ -172,6 +174,7 @@ def read_command_line_arguments():
     game_options_dict['tournament_rounds'] = 0
     game_options_dict['tournament_mode'] = False
 
+    # https://docs.python.org/2/library/optparse.html
     parser = OptionParser()
     parser.add_option('-l', '--level', dest='difficulty_level',
                       help='set the game difficulty level for the computer ' +
@@ -187,7 +190,7 @@ def read_command_line_arguments():
                       help='set the number of rounds to be played and ' +
                       'activate the tournament mode. The winner is the ' +
                       'one who has the most wins.', type=int)
-
+    # get the options, discard the leftover arguments with _
     (options, _) = parser.parse_args()
 
     if options.difficulty_level is not None:
@@ -216,7 +219,7 @@ def read_playable_words_from_file():
     return words
 
 def find_tournament_winner(winner_dict):
-    ''' Get the tournament winner or winners from the winner_dict. '''
+    ''' Resolve the tournament winner or winners from the winner_dict. '''
     name = ''
     wins = 0
     multiple_winners = False
@@ -239,17 +242,17 @@ def find_tournament_winner(winner_dict):
     return msg
 
 def player_active(player, player_dict):
-    ''' Check is player in active state. '''
+    ''' Check if player is in active state. '''
     return player_dict[player] == 'active'
 
 def find_winner(player_dict):
-    ''' Returns the player with flag on. Used when only one player left. '''
+    ''' Returns the active player. Used when only one player is left. '''
     for player in player_dict:
         if player_active(player, player_dict):
             return player
 
 def only_one_player_left(player_dict):
-    ''' Check is only one active player left in the round. '''
+    ''' Check if only one active player is left in the round. '''
     number_of_active_players = 0
     for player in player_dict:
         if player_active(player, player_dict):
@@ -262,7 +265,7 @@ def print_elapsed_time(start_time):
     game_output('Peliin käytetty aika: {} sekuntia.'.format(time_gone))
     game_output('')
 
-# refactor? remove exceptions. remove output, just validation.
+# refactor?
 def validate(player, word, previous_word, playable_words):
     if word:
         if word in playable_words:
@@ -280,15 +283,25 @@ def validate(player, word, previous_word, playable_words):
 
 def play_the_game(words, options):
     ''' The game loop '''
+    # variable that controls whether the game is on or not
     game_on = True
+    # stores the latest played word (by man or machine)
     previous_word = None
+    # list of words available for the ongoing game
     playable_words = words
-    winner_dict = {}  # keeps count of wins per player
+    # stores the winners and keeps count of wins per tournament
+    winner_dict = {}
+    # variable that holds the players and their state (active/dropped)
     players_dict = initialize_player_dict(options['computer_player_count'])
+    # number of rounds to be played, decreased after each game round
     rounds = options['tournament_rounds']
+    # convinience flag that tells whether game is in tournament mode or not (True/False)
     tournament_mode = options['tournament_mode']
-    time_limit = options['timer_time'] or 120 # two minute default
+    # time limit for player's move in seconds. Defaults to 2 minutes.
+    time_limit = options['timer_time'] or 120
+    # difficulty level for machine players, used to randomize machine's answer.
     difficulty_level = options['difficulty_level']
+    # used to count the time spent in the game or tournament. Extra.
     game_start_time = time()
 
     print_header(options)
